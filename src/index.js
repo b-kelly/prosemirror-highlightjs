@@ -1,12 +1,12 @@
 import { Plugin } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
-export function highlight(hljs, blockTypes) {
+export function highlightPlugin(hljs, blockTypes) {
   blockTypes = blockTypes || ["code_block"];
   return new Plugin({
     state: {
       init(config, instance) {
-        let content = parseHtml(instance.doc, hljs, blockTypes);
+        let content = getHighlightDecorations(instance.doc, hljs, blockTypes);
         return DecorationSet.create(instance.doc, content);
       },
       apply(tr, set) {
@@ -14,7 +14,7 @@ export function highlight(hljs, blockTypes) {
           return set.map(tr.mapping, tr.doc);
         }
 
-        let content = parseHtml(tr.doc, hljs, blockTypes);
+        let content = getHighlightDecorations(tr.doc, hljs, blockTypes);
         return DecorationSet.create(tr.doc, content);
       },
     },
@@ -26,7 +26,7 @@ export function highlight(hljs, blockTypes) {
   });
 }
 
-function parseHtml(doc, hljs, blockTypes) {
+function getHighlightDecorations(doc, hljs, blockTypes) {
   let blocks = [];
   doc.descendants((child, pos) => {
     if (child.isBlock && blockTypes.includes(child.type.name)) {
@@ -111,7 +111,7 @@ export class ProseMirrorRenderer {
     item.to = this.currentPosition;
 
     // TODO will this ever happen in practice?
-    if (node.kind != item.kind) {
+    if (node.kind !== item.kind) {
       throw "Mismatch!";
     }
 
