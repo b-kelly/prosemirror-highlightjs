@@ -1,7 +1,9 @@
+import "highlight.js";
+import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
-export function highlightPlugin(hljs, blockTypes) {
+export function highlightPlugin(hljs: HLJSApi, blockTypes: string[]) {
   blockTypes = blockTypes || ["code_block"];
   return new Plugin({
     state: {
@@ -26,10 +28,10 @@ export function highlightPlugin(hljs, blockTypes) {
   });
 }
 
-function getHighlightDecorations(doc, hljs, blockTypes) {
-  let blocks = [];
+function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes: string[]) {
+  let blocks: { node: ProseMirrorNode, pos: number }[] = [];
   doc.descendants((child, pos) => {
-    if (child.isBlock && blockTypes.includes(child.type.name)) {
+    if (child.isBlock && blockTypes.indexOf(child.type.name) > -1) {
       blocks.push({
         node: child,
         pos: pos,
@@ -39,7 +41,7 @@ function getHighlightDecorations(doc, hljs, blockTypes) {
     }
   });
 
-  let decorations = [];
+  let decorations: Decoration[] = [];
 
   blocks.forEach((b) => {
     let result = hljs.highlight("javascript", b.node.textContent);
@@ -47,13 +49,14 @@ function getHighlightDecorations(doc, hljs, blockTypes) {
     let renderer = new ProseMirrorRenderer(
       result.emitter,
       b.pos,
+      // @ts-ignore TODO
       result.emitter.options.classPrefix
     );
 
     let value = renderer.value();
 
-    let localDecorations = [];
-    value.forEach((v) => {
+    let localDecorations: Decoration[] = [];
+    value.forEach(v => {
       if (!v.kind) {
         return;
       }
@@ -71,8 +74,21 @@ function getHighlightDecorations(doc, hljs, blockTypes) {
   return decorations;
 }
 
+type RendererNode = {
+  from: number,
+  to: number,
+  kind: string,
+  classes: string
+};
+
 export class ProseMirrorRenderer {
-  constructor(tree, startingBlockPos, classPrefix) {
+  private buffer: RendererNode[];
+  private nodeQueue: RendererNode[];
+  private classPrefix: string;
+  private currentPosition: number;
+
+  //TODO any
+  constructor(tree: any, startingBlockPos: number, classPrefix: string) {
     this.buffer = [];
     this.nodeQueue = [];
     this.classPrefix = classPrefix;
@@ -84,7 +100,7 @@ export class ProseMirrorRenderer {
     return this.nodeQueue.length ? this.nodeQueue.slice(-1) : null;
   }
 
-  addText(text) {
+  addText(text: string) {
     let node = this.currentNode;
 
     if (!node) {
@@ -94,11 +110,12 @@ export class ProseMirrorRenderer {
     this.currentPosition += text.length;
   }
 
-  openNode(node) {
+  openNode(node: RendererNode) {
     let className = node.kind;
+    // @ts-ignore TODO
     if (!node.sublanguage) className = `${this.classPrefix}${className}`;
 
-    let item = this._newNode();
+    let item = this.newNode();
     item.kind = node.kind;
     item.classes = className;
     item.from = this.currentPosition;
@@ -106,7 +123,7 @@ export class ProseMirrorRenderer {
     this.nodeQueue.push(item);
   }
 
-  closeNode(node) {
+  closeNode(node: RendererNode) {
     let item = this.nodeQueue.pop();
     item.to = this.currentPosition;
 
@@ -122,7 +139,7 @@ export class ProseMirrorRenderer {
     return this.buffer;
   }
 
-  _newNode() {
+  private newNode(): RendererNode {
     return {
       from: 0,
       to: 0,
