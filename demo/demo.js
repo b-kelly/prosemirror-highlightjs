@@ -32,7 +32,7 @@ const schema = new Schema({
       defining: true,
       parseDOM: [{ tag: "pre", preserveWhitespace: "full" }],
       toDOM() {
-        return ["pre", {class: "hljs"}, ["code", 0]];
+        return ["pre", { class: "hljs" }, ["code", 0]];
       },
     },
   },
@@ -50,6 +50,9 @@ window.view = new EditorView(document.querySelector("#editor"), {
 });
 
 // highlight our "static" version to compare
-let clone = document.querySelector("#content-clone")
+let clone = document.querySelector("#content-clone");
 clone.innerHTML = content.innerHTML;
-clone.querySelector("code").innerHTML = hljs.highlight("javascript", content.textContent).value;
+clone.querySelector("code").innerHTML = hljs.highlight(
+  "javascript",
+  content.textContent
+).value;
