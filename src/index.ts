@@ -3,12 +3,38 @@ import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
-export function highlightPlugin(hljs: HLJSApi, blockTypes: string[]) {
+/** TODO default emitter type for hljs */
+interface TokenTreeEmitter extends Emitter {
+  options: HLJSOptions;
+  walk: (r: Renderer) => void
+}
+
+type DataNode = { kind?: string, sublanguage?: boolean };
+
+interface Renderer {
+  addText: (text: string) => void,
+  openNode: (node: DataNode) => void,
+  closeNode: (node: DataNode) => void,
+  value: () => any
+};
+
+type RendererNode = {
+  from: number,
+  to: number,
+  kind: string,
+  classes: string
+};
+
+export function highlightPlugin(hljs: HLJSApi, blockTypes?: string[], languageExtractor?: (node: ProseMirrorNode) => string) {
   blockTypes = blockTypes || ["code_block"];
+  languageExtractor = languageExtractor || function (node) {
+    return node.attrs.params?.split(" ")[0] || "";
+  };
+
   return new Plugin({
     state: {
       init(config, instance) {
-        let content = getHighlightDecorations(instance.doc, hljs, blockTypes);
+        let content = getHighlightDecorations(instance.doc, hljs, blockTypes, languageExtractor);
         return DecorationSet.create(instance.doc, content);
       },
       apply(tr, set) {
@@ -16,7 +42,7 @@ export function highlightPlugin(hljs: HLJSApi, blockTypes: string[]) {
           return set.map(tr.mapping, tr.doc);
         }
 
-        let content = getHighlightDecorations(tr.doc, hljs, blockTypes);
+        let content = getHighlightDecorations(tr.doc, hljs, blockTypes, languageExtractor);
         return DecorationSet.create(tr.doc, content);
       },
     },
@@ -28,7 +54,14 @@ export function highlightPlugin(hljs: HLJSApi, blockTypes: string[]) {
   });
 }
 
-function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes: string[]) {
+/**
+ * Gets all highlighting decorations from a ProseMirror document
+ * @param doc The doc to search applicable blocks to highlight
+ * @param hljs The pre-configured highlight.js instance to use for parsing
+ * @param blockTypes The blocktypes that contain text to highlight
+ * @param languageExtractor Function that takes a node and returns the language to use when highlighting
+ */
+function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes: string[], languageExtractor: (node: ProseMirrorNode) => string) {
   let blocks: { node: ProseMirrorNode, pos: number }[] = [];
   doc.descendants((child, pos) => {
     if (child.isBlock && blockTypes.indexOf(child.type.name) > -1) {
@@ -43,14 +76,15 @@ function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes
 
   let decorations: Decoration[] = [];
 
-  blocks.forEach((b) => {
-    let result = hljs.highlight("javascript", b.node.textContent);
+  blocks.forEach(b => {
+    let language = languageExtractor(b.node);
+    let result = language ? hljs.highlight(language, b.node.textContent) : hljs.highlightAuto(b.node.textContent);
+    let emitter = result.emitter as TokenTreeEmitter;
 
     let renderer = new ProseMirrorRenderer(
-      result.emitter,
+      emitter as TokenTreeEmitter,
       b.pos,
-      // @ts-ignore TODO
-      result.emitter.options.classPrefix
+      emitter.options.classPrefix
     );
 
     let value = renderer.value();
@@ -74,21 +108,13 @@ function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes
   return decorations;
 }
 
-type RendererNode = {
-  from: number,
-  to: number,
-  kind: string,
-  classes: string
-};
-
-export class ProseMirrorRenderer {
+export class ProseMirrorRenderer implements Renderer {
   private buffer: RendererNode[];
   private nodeQueue: RendererNode[];
   private classPrefix: string;
   private currentPosition: number;
 
-  //TODO any
-  constructor(tree: any, startingBlockPos: number, classPrefix: string) {
+  constructor(tree: TokenTreeEmitter, startingBlockPos: number, classPrefix: string) {
     this.buffer = [];
     this.nodeQueue = [];
     this.classPrefix = classPrefix;
@@ -110,9 +136,8 @@ export class ProseMirrorRenderer {
     this.currentPosition += text.length;
   }
 
-  openNode(node: RendererNode) {
+  openNode(node: DataNode) {
     let className = node.kind;
-    // @ts-ignore TODO
     if (!node.sublanguage) className = `${this.classPrefix}${className}`;
 
     let item = this.newNode();
@@ -123,11 +148,11 @@ export class ProseMirrorRenderer {
     this.nodeQueue.push(item);
   }
 
-  closeNode(node: RendererNode) {
+  closeNode(node: DataNode) {
     let item = this.nodeQueue.pop();
     item.to = this.currentPosition;
 
-    // TODO will this ever happen in practice?
+    // will this ever happen in practice?
     if (node.kind !== item.kind) {
       throw "Mismatch!";
     }
