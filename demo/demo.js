@@ -2,7 +2,7 @@ import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { Schema, DOMParser } from "prosemirror-model";
 import hljs from "highlight.js/lib/core";
-import { highlight } from "../src/index";
+import { highlightPlugin } from "../src/index";
 
 hljs.registerLanguage(
   "javascript",
@@ -45,7 +45,7 @@ let content = document.querySelector("#content");
 window.view = new EditorView(document.querySelector("#editor"), {
   state: EditorState.create({
     doc: DOMParser.fromSchema(schema).parse(content),
-    plugins: [highlight(hljs)],
+    plugins: [highlightPlugin(hljs)],
   }),
 });
 
