@@ -20,6 +20,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "highlight.js": "^10.0.3"
+    "highlight.js": "^10.0.3",
+    "prosemirror-highlightjs": "file:.."
   }
 }

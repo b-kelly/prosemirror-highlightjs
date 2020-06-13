@@ -3,7 +3,7 @@
 ## Usage
 
 ```js
-import { highlightPlugin } from "TODO_upload-to-npm";
+import { highlightPlugin } from "prosemirror-highlightjs";
 
 let state = new EditorView(..., {
   state: EditorState.create({
@@ -16,7 +16,7 @@ let state = new EditorView(..., {
 Or just import the decoration parser and write your own plugin:
 
 ```js
-import { getHighlightDecorations } from "TODO_upload-to-npm";
+import { getHighlightDecorations } from "prosemirror-highlightjs";
 
 let plugin = new Plugin({
   state: {

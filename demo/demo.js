@@ -2,7 +2,7 @@ import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { Schema, DOMParser } from "prosemirror-model";
 import hljs from "highlight.js/lib/core";
-import { highlightPlugin } from "../src/index";
+import { highlightPlugin } from "prosemirror-highlightjs";
 
 hljs.registerLanguage(
   "javascript",
