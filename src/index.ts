@@ -108,7 +108,7 @@ function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes
   return decorations;
 }
 
-export class ProseMirrorRenderer implements Renderer {
+class ProseMirrorRenderer implements Renderer {
   private buffer: RendererNode[];
   private nodeQueue: RendererNode[];
   private classPrefix: string;
