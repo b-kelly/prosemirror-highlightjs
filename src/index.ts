@@ -61,7 +61,7 @@ export function highlightPlugin(hljs: HLJSApi, blockTypes?: string[], languageEx
  * @param blockTypes The blocktypes that contain text to highlight
  * @param languageExtractor Function that takes a node and returns the language to use when highlighting
  */
-function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes: string[], languageExtractor: (node: ProseMirrorNode) => string) {
+export function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes: string[], languageExtractor: (node: ProseMirrorNode) => string) {
   let blocks: { node: ProseMirrorNode, pos: number }[] = [];
   doc.descendants((child, pos) => {
     if (child.isBlock && blockTypes.indexOf(child.type.name) > -1) {
