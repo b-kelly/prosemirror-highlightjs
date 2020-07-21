@@ -84,6 +84,12 @@ export function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, nod
 
   blocks.forEach(b => {
     let language = languageExtractor(b.node);
+
+    // if the langauge is specified, but isn't loaded, skip highlighting
+    if (language && !hljs.getLanguage(language)) {
+      return;
+    }
+
     let result = language ? hljs.highlight(language, b.node.textContent) : hljs.highlightAuto(b.node.textContent);
     let emitter = result.emitter as TokenTreeEmitter;
 

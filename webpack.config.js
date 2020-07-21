@@ -20,5 +20,10 @@ module.exports = {
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
   },
-  externals: ["prosemirror-state", "prosemirror-view", "highlight.js"],
+  externals: [
+    "prosemirror-model",
+    "prosemirror-state",
+    "prosemirror-view",
+    "highlight.js",
+  ],
 };

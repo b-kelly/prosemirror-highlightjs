@@ -3,6 +3,7 @@
 ## Usage
 
 ```js
+import hljs from "highlight.js/lib/core";
 import { highlightPlugin } from "prosemirror-highlightjs";
 
 let state = new EditorView(..., {
@@ -19,42 +20,48 @@ Or just import the decoration parser and write your own plugin:
 import { getHighlightDecorations } from "prosemirror-highlightjs";
 
 let plugin = new Plugin({
-  state: {
-    init(config, instance) {
-      let content = getHighlightDecorations(
-        instance.doc,
-        hljs,
-        blockTypes,
-        languageExtractor
-      );
-      return DecorationSet.create(instance.doc, content);
-    },
-    apply(tr, set) {
-      if (!tr.docChanged) {
-        return set.map(tr.mapping, tr.doc);
-      }
+    state: {
+        init(config, instance) {
+            let content = getHighlightDecorations(
+                instance.doc,
+                hljs,
+                blockTypes,
+                languageExtractor
+            );
+            return DecorationSet.create(instance.doc, content);
+        },
+        apply(tr, set) {
+            if (!tr.docChanged) {
+                return set.map(tr.mapping, tr.doc);
+            }
 
-      let content = getHighlightDecorations(
-        tr.doc,
-        hljs,
-        blockTypes,
-        languageExtractor
-      );
-      return DecorationSet.create(tr.doc, content);
+            let content = getHighlightDecorations(
+                tr.doc,
+                hljs,
+                blockTypes,
+                languageExtractor
+            );
+            return DecorationSet.create(tr.doc, content);
+        },
     },
-  },
-  props: {
-    decorations(state) {
-      return this.getState(state);
+    props: {
+        decorations(state) {
+            return this.getState(state);
+        },
     },
-  },
 });
 ```
 
 ## Running locally
 
 ```
-cd ./demo
 npm i
 npm start
+```
+
+## Running tests
+
+```
+npm i
+npm test
 ```
