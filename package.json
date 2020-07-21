@@ -27,7 +27,7 @@
   "devDependencies": {
     "@types/prosemirror-state": "^1.2.5",
     "@types/prosemirror-view": "^1.15.0",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^8.0.1",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12"
