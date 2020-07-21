@@ -25,16 +25,22 @@ type RendererNode = {
   classes: string
 };
 
-export function highlightPlugin(hljs: HLJSApi, blockTypes?: string[], languageExtractor?: (node: ProseMirrorNode) => string) {
-  blockTypes = blockTypes || ["code_block"];
+/**
+ * Creates a plugin that highlights the contents of all nodes (via Decorations) with a type passed in blockTypes
+ * @param hljs The pre-configured instance of highlightjs to use for parsing
+ * @param nodeTypes An array containing all the node types to target for highlighting
+ * @param languageExtractor A method that is passed a prosemirror node and returns the language string to use when highlighting that node; defaults to using `node.attrs.params`
+ */
+export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_block"], languageExtractor?: (node: ProseMirrorNode) => string) {
+  nodeTypes = nodeTypes;
   languageExtractor = languageExtractor || function (node) {
     return node.attrs.params?.split(" ")[0] || "";
   };
 
   return new Plugin({
     state: {
-      init(config, instance) {
-        let content = getHighlightDecorations(instance.doc, hljs, blockTypes, languageExtractor);
+      init(_, instance) {
+        let content = getHighlightDecorations(instance.doc, hljs, nodeTypes, languageExtractor);
         return DecorationSet.create(instance.doc, content);
       },
       apply(tr, set) {
@@ -42,7 +48,7 @@ export function highlightPlugin(hljs: HLJSApi, blockTypes?: string[], languageEx
           return set.map(tr.mapping, tr.doc);
         }
 
-        let content = getHighlightDecorations(tr.doc, hljs, blockTypes, languageExtractor);
+        let content = getHighlightDecorations(tr.doc, hljs, nodeTypes, languageExtractor);
         return DecorationSet.create(tr.doc, content);
       },
     },
@@ -58,13 +64,13 @@ export function highlightPlugin(hljs: HLJSApi, blockTypes?: string[], languageEx
  * Gets all highlighting decorations from a ProseMirror document
  * @param doc The doc to search applicable blocks to highlight
  * @param hljs The pre-configured highlight.js instance to use for parsing
- * @param blockTypes The blocktypes that contain text to highlight
- * @param languageExtractor Function that takes a node and returns the language to use when highlighting
+ * @param nodeTypes An array containing all the node types to target for highlighting
+ * @param languageExtractor A method that is passed a prosemirror node and returns the language string to use when highlighting that node
  */
-export function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, blockTypes: string[], languageExtractor: (node: ProseMirrorNode) => string) {
+export function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, nodeTypes: string[], languageExtractor: (node: ProseMirrorNode) => string) {
   let blocks: { node: ProseMirrorNode, pos: number }[] = [];
   doc.descendants((child, pos) => {
-    if (child.isBlock && blockTypes.indexOf(child.type.name) > -1) {
+    if (child.isBlock && nodeTypes.indexOf(child.type.name) > -1) {
       blocks.push({
         node: child,
         pos: pos,
