@@ -21,7 +21,7 @@ interface Renderer {
 type RendererNode = {
   from: number,
   to: number,
-  kind: string,
+  kind?: string,
   classes: string
 };
 
@@ -33,14 +33,15 @@ type RendererNode = {
  */
 export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_block"], languageExtractor?: (node: ProseMirrorNode) => string) {
   nodeTypes = nodeTypes;
-  languageExtractor = languageExtractor || function (node) {
+
+  const extractor = languageExtractor || function (node: ProseMirrorNode) {
     return node.attrs.params?.split(" ")[0] || "";
   };
 
   return new Plugin({
     state: {
       init(_, instance) {
-        let content = getHighlightDecorations(instance.doc, hljs, nodeTypes, languageExtractor);
+        let content = getHighlightDecorations(instance.doc, hljs, nodeTypes, extractor);
         return DecorationSet.create(instance.doc, content);
       },
       apply(tr, set) {
@@ -48,7 +49,7 @@ export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_bloc
           return set.map(tr.mapping, tr.doc);
         }
 
-        let content = getHighlightDecorations(tr.doc, hljs, nodeTypes, languageExtractor);
+        let content = getHighlightDecorations(tr.doc, hljs, nodeTypes, extractor);
         return DecorationSet.create(tr.doc, content);
       },
     },
@@ -78,6 +79,8 @@ export function getHighlightDecorations(doc: ProseMirrorNode, hljs: HLJSApi, nod
 
       return false;
     }
+
+    return;
   });
 
   let decorations: Decoration[] = [];
@@ -149,7 +152,7 @@ class ProseMirrorRenderer implements Renderer {
   }
 
   openNode(node: DataNode) {
-    let className = node.kind;
+    let className = node.kind || "";
     if (!node.sublanguage) className = `${this.classPrefix}${className}`;
 
     let item = this.newNode();
@@ -162,6 +165,13 @@ class ProseMirrorRenderer implements Renderer {
 
   closeNode(node: DataNode) {
     let item = this.nodeQueue.pop();
+
+    // will this ever happen in practice?
+    // if the nodeQueue is empty, we have nothing to close
+    if (!item) {
+      throw "Cannot close node!";
+    }
+
     item.to = this.currentPosition;
 
     // will this ever happen in practice?
@@ -180,7 +190,7 @@ class ProseMirrorRenderer implements Renderer {
     return {
       from: 0,
       to: 0,
-      kind: null,
+      kind: undefined,
       classes: "",
     };
   }

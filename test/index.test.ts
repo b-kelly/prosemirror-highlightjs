@@ -19,7 +19,7 @@ hljs.registerAliases("js_alias", {
     languageName: "javascript"
 });
 
-function createStateImpl(input: { code: string, language: string }[], addPlugins = true) {
+function createStateImpl(input: { code: string, language?: string }[], addPlugins = true) {
     const doc = document.createElement("div");
 
     doc.innerHTML = input.reduce((p, n) => {

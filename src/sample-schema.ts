@@ -27,7 +27,13 @@ export const schema = new Schema({
                     params: (<any>node).getAttribute("data-params") || ""
                 })
             }],
-            toDOM(node) { return ["pre", node.attrs.params ? { "data-params": node.attrs.params } : {}, ["code", 0]] }
+            toDOM(node) {
+                return [
+                    "pre",
+                    { "data-params": node.attrs.params },
+                    ["code", 0]
+                ]
+            }
         },
     },
     marks: {},
