@@ -25,7 +25,6 @@ type RendererNode = {
     classes: string
 };
 
-
 /**
  * Gets all nodes with a type in nodeTypes from a document
  * @param doc The document to search

@@ -10,6 +10,7 @@
     "strict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
+    "sourceMap": true
   },
   "include": [
     "./src/**/*"
