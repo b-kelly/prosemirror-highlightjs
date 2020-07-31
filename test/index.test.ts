@@ -84,7 +84,8 @@ describe("highlightPlugin", () => {
     ])("%s", (_, language) => {
         const state = createState(`console.log("hello world");`, language);
 
-        const pluginState: DecorationSet = state.plugins[0].getState(state);
+        // TODO check all props?
+        const pluginState: DecorationSet = state.plugins[0].getState(state).decorations;
 
         // the decorations should be loaded
         expect(pluginState).not.toBe(DecorationSet.empty);
@@ -95,7 +96,8 @@ describe("highlightPlugin", () => {
     it("should skip highlighting on invalid/not loaded language", () => {
         const state = createState(`console.log("hello world");`, "fake_language");
 
-        const pluginState: DecorationSet = state.plugins[0].getState(state);
+        // TODO check all props?
+        const pluginState: DecorationSet = state.plugins[0].getState(state).decorations;
 
         // the decorations should NOT be loaded
         expect(pluginState).toBe(DecorationSet.empty);
@@ -117,7 +119,8 @@ describe("highlightPlugin", () => {
             }
         ]);
 
-        const pluginState: DecorationSet = state.plugins[0].getState(state);
+        // TODO check all props?
+        const pluginState: DecorationSet = state.plugins[0].getState(state).decorations;
 
         // the decorations should NOT be loaded
         expect(pluginState).not.toBe(DecorationSet.empty);
