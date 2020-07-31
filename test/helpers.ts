@@ -14,6 +14,11 @@ hljs.registerLanguage(
     require("highlight.js/lib/languages/csharp")
 );
 
+hljs.registerLanguage(
+    "java",
+    require("highlight.js/lib/languages/java")
+);
+
 hljs.registerAliases("js_alias", {
     languageName: "javascript"
 });

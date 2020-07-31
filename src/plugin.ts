@@ -74,8 +74,12 @@ export class DecorationCache {
             if (result.deleted || !mappedNode || !mappedNode.eq(node)) {
                 returnCache.remove(pos);
             }
-            else {
-                returnCache.replace(pos, result.pos, mappedNode, decorations);
+            else if (pos !== result.pos) {
+                // update the decorations' from/to values to match the new node position
+                const offset = result.pos - pos;
+                // @ts-expect-error TODO types are out of date here?
+                const updatedDecorations = decorations.map(d => d.copy(d.from + offset, d.to + offset) as Decoration);
+                returnCache.replace(pos, result.pos, mappedNode, updatedDecorations);
             }
         });
 
