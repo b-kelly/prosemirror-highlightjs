@@ -3,3 +3,4 @@ test/
 .vscode/
 *.js
 *.json
+.github/
