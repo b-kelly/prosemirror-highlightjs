@@ -1,4 +1,4 @@
-import "highlight.js";
+/// <reference types="highlight.js" />
 import { Node as ProseMirrorNode } from "prosemirror-model";
 import { Plugin, Transaction } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";

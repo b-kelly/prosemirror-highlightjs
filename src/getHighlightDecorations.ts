@@ -1,5 +1,4 @@
-
-import "highlight.js";
+/// <reference types="highlight.js" />
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { Decoration } from "prosemirror-view";
 
@@ -61,9 +60,13 @@ export function getHighlightDecorations(
     doc: ProseMirrorNode,
     hljs: HLJSApi,
     nodeTypes: string[],
-    languageExtractor: (node: ProseMirrorNode) => string,
+    languageExtractor: (node: ProseMirrorNode) => string | null,
     preRenderer?: (block: ProseMirrorNode, pos: number) => Decoration[] | null,
     postRenderer?: (block: ProseMirrorNode, pos: number, decorations: Decoration[]) => void) {
+
+    if (!doc || !doc.nodeSize || !nodeTypes?.length || !languageExtractor) {
+        return [];
+    }
 
     const blocks = getNodesOfType(doc, nodeTypes);
 
