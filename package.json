@@ -27,14 +27,14 @@
     "prosemirror-view": "^1.15.2"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.7",
+    "@types/jest": "^26.0.8",
     "@types/prosemirror-model": "^1.7.2",
     "@types/prosemirror-state": "^1.2.5",
     "@types/prosemirror-view": "^1.15.0",
-    "css-loader": "^4.1.1",
+    "css-loader": "^4.2.0",
     "highlight.js": "^10.1.1",
     "html-webpack-plugin": "^4.3.0",
-    "jest": "^26.2.1",
+    "jest": "^26.2.2",
     "prosemirror-view": "^1.15.2",
     "style-loader": "^1.2.1",
     "ts-jest": "^26.1.4",
