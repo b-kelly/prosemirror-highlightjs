@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo</title>
-</head>
-<body>
-    <div id="content" style="display: none;">
-<pre><code>function $initHighlight(block, cls) {
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Demo</title>
+    </head>
+    <body>
+        <div id="content" style="display: none;">
+            <p>test</p>
+            <pre><code class="lang-javascript">function $initHighlight(block, cls) {
     try {
       if (cls.search(/\bno\-highlight\b/) != -1)
         return process(block, true, 0x0F) +
@@ -28,8 +29,11 @@
 }
 
 export  $initHighlight;</code></pre>
-    </div>
-    <div id="editor"></div>
-    <div id="content-clone" class="hljs"></div>
-</body>
+            <p>test2</p>
+        </div>
+        <h1>Editor</h1>
+        <div id="editor"></div>
+        <h1>Reference sample</h1>
+        <div id="content-clone" class="hljs"></div>
+    </body>
 </html>

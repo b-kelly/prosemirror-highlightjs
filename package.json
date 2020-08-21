@@ -35,6 +35,8 @@
     "highlight.js": "^10.1.1",
     "html-webpack-plugin": "^4.3.0",
     "jest": "^26.4.1",
+    "prosemirror-commands": "^1.1.4",
+    "prosemirror-keymap": "^1.1.4",
     "prosemirror-view": "^1.15.4",
     "style-loader": "^1.2.1",
     "ts-jest": "^26.2.0",
