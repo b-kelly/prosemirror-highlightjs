@@ -5,7 +5,7 @@ describe("sample-schema", () => {
         "should create a schema with the proper attrs (%s) set",
         (language) => {
             const code = `console.log("hello world");`;
-            let state = createState(code, language, false);
+            const state = createState(code, language, false);
 
             // expect the doc to be a specific shape
             expect(state.doc.childCount).toBe(1);

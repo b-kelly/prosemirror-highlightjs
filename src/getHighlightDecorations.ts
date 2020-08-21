@@ -33,7 +33,7 @@ function getNodesOfType(
     doc: ProseMirrorNode,
     nodeTypes: string[]
 ): { node: ProseMirrorNode; pos: number }[] {
-    let blocks: { node: ProseMirrorNode; pos: number }[] = [];
+    const blocks: { node: ProseMirrorNode; pos: number }[] = [];
     doc.descendants((child, pos) => {
         if (child.isBlock && nodeTypes.indexOf(child.type.name) > -1) {
             blocks.push({
@@ -91,33 +91,33 @@ export function getHighlightDecorations(
             }
         }
 
-        let language = languageExtractor(b.node);
+        const language = languageExtractor(b.node);
 
         // if the langauge is specified, but isn't loaded, skip highlighting
         if (language && !hljs.getLanguage(language)) {
             return;
         }
 
-        let result = language
+        const result = language
             ? hljs.highlight(language, b.node.textContent)
             : hljs.highlightAuto(b.node.textContent);
-        let emitter = result.emitter as TokenTreeEmitter;
+        const emitter = result.emitter as TokenTreeEmitter;
 
-        let renderer = new ProseMirrorRenderer(
-            emitter as TokenTreeEmitter,
+        const renderer = new ProseMirrorRenderer(
+            emitter,
             b.pos,
             emitter.options.classPrefix
         );
 
-        let value = renderer.value();
+        const value = renderer.value();
 
-        let localDecorations: Decoration[] = [];
+        const localDecorations: Decoration[] = [];
         value.forEach((v) => {
             if (!v.kind) {
                 return;
             }
 
-            let decoration = Decoration.inline(v.from, v.to, {
+            const decoration = Decoration.inline(v.from, v.to, {
                 class: v.classes,
             });
 
@@ -157,7 +157,7 @@ class ProseMirrorRenderer implements Renderer {
     }
 
     addText(text: string) {
-        let node = this.currentNode;
+        const node = this.currentNode;
 
         if (!node) {
             return;
@@ -170,7 +170,7 @@ class ProseMirrorRenderer implements Renderer {
         let className = node.kind || "";
         if (!node.sublanguage) className = `${this.classPrefix}${className}`;
 
-        let item = this.newNode();
+        const item = this.newNode();
         item.kind = node.kind;
         item.classes = className;
         item.from = this.currentPosition;
@@ -179,7 +179,7 @@ class ProseMirrorRenderer implements Renderer {
     }
 
     closeNode(node: DataNode) {
-        let item = this.nodeQueue.pop();
+        const item = this.nodeQueue.pop();
 
         // will this ever happen in practice?
         // if the nodeQueue is empty, we have nothing to close

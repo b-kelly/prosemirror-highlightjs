@@ -125,7 +125,7 @@ export function highlightPlugin(
         state: {
             init(_, instance) {
                 const cache = new DecorationCache({});
-                let content = getHighlightDecorations(
+                const content = getHighlightDecorations(
                     instance.doc,
                     hljs,
                     nodeTypes,
@@ -149,7 +149,7 @@ export function highlightPlugin(
                     };
                 }
 
-                let content = getHighlightDecorations(
+                const content = getHighlightDecorations(
                     tr.doc,
                     hljs,
                     nodeTypes,
