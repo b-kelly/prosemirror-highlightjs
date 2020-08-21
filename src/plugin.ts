@@ -5,7 +5,7 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 import { getHighlightDecorations } from "./getHighlightDecorations";
 
 /** Describes the current state of the highlightPlugin  */
-interface HighlightPluginState {
+export interface HighlightPluginState {
     cache: DecorationCache;
     decorations: DecorationSet;
 }
@@ -114,7 +114,7 @@ export function highlightPlugin(
     hljs: HLJSApi,
     nodeTypes: string[] = ["code_block"],
     languageExtractor?: (node: ProseMirrorNode) => string
-): Plugin {
+): Plugin<HighlightPluginState> {
     const extractor =
         languageExtractor ||
         function (node: ProseMirrorNode) {
