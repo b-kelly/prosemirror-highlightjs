@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import hljs from "highlight.js/lib/core";
 import java from "highlight.js/lib/languages/java";
 import javascript from "highlight.js/lib/languages/javascript";
@@ -137,7 +138,7 @@ describe("getHighlightDecorations", () => {
             (node, pos, decos) => {
                 expect(node).not.toBeNull();
                 expect(node.type.name).toBe("code_block");
-                expect(typeof pos === "number");
+                expect(typeof pos).toBe("number");
 
                 renderedDecorations = decos;
             }

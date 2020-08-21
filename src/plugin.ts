@@ -26,7 +26,7 @@ export class DecorationCache {
      * Gets the cache entry at the given doc position, or null if it doesn't exist
      * @param pos The doc position of the node you want the cache for
      */
-    get(pos: number) {
+    get(pos: number): { node: ProseMirrorNode; decorations: Decoration[] } {
         return this.cache[pos] || null;
     }
 
@@ -36,7 +36,7 @@ export class DecorationCache {
      * @param node The node to place in cache
      * @param decorations The decorations to place in cache
      */
-    set(pos: number, node: ProseMirrorNode, decorations: Decoration[]) {
+    set(pos: number, node: ProseMirrorNode, decorations: Decoration[]): void {
         this.cache[pos] = { node, decorations };
     }
 
@@ -52,7 +52,7 @@ export class DecorationCache {
         newPos: number,
         node: ProseMirrorNode,
         decorations: Decoration[]
-    ) {
+    ): void {
         this.remove(oldPos);
         this.set(newPos, node, decorations);
     }
@@ -61,7 +61,7 @@ export class DecorationCache {
      * Removes the cache entry at the given position
      * @param pos The doc position to remove from cache
      */
-    remove(pos: number) {
+    remove(pos: number): void {
         delete this.cache[pos];
     }
 
@@ -71,7 +71,7 @@ export class DecorationCache {
      * NOTE: this does not affect the current cache, but returns an entirely new one
      * @param tr A transaction to map the current cache to
      */
-    invalidate(tr: Transaction) {
+    invalidate(tr: Transaction): DecorationCache {
         const returnCache = new DecorationCache(this.cache);
         const mapping = tr.mapping;
         Object.keys(this.cache).forEach((k) => {
@@ -86,7 +86,9 @@ export class DecorationCache {
                 // update the decorations' from/to values to match the new node position
                 const offset = result.pos - pos;
                 const updatedDecorations = decorations.map(
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-expect-error TODO types are out of date here?
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     (d) => d.copy(d.from + offset, d.to + offset) as Decoration
                 );
                 returnCache.replace(
@@ -112,13 +114,12 @@ export function highlightPlugin(
     hljs: HLJSApi,
     nodeTypes: string[] = ["code_block"],
     languageExtractor?: (node: ProseMirrorNode) => string
-) {
-    nodeTypes = nodeTypes;
-
+): Plugin {
     const extractor =
         languageExtractor ||
         function (node: ProseMirrorNode) {
-            return node.attrs.params?.split(" ")[0] || "";
+            const params = node.attrs.params as string;
+            return params?.split(" ")[0] || "";
         };
 
     return new Plugin<HighlightPluginState>({

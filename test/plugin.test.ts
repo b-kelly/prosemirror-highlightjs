@@ -1,13 +1,22 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { DecorationSet } from "prosemirror-view";
 import { createState, createStateImpl } from "./helpers";
 import { DecorationCache } from "../src";
 import { schema } from "../src/sample-schema";
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, EditorState } from "prosemirror-state";
 
 /** Helper function to "illegally" get the private contents of a DecorationCache */
 function getCacheContents(cache: DecorationCache) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error We don't want to expose .cache publicly, but... I don't care. I wrote it.
     return cache.cache;
+}
+
+function getDecorationsFromPlugin(editorState: EditorState) {
+    const pluginState = editorState.plugins[0].getState(editorState) as {
+        decorations: DecorationSet;
+    };
+    return pluginState.decorations;
 }
 
 describe("DecorationCache", () => {
@@ -121,8 +130,7 @@ describe("highlightPlugin", () => {
         const state = createState(`console.log("hello world");`, language);
 
         // TODO check all props?
-        const pluginState: DecorationSet = state.plugins[0].getState(state)
-            .decorations;
+        const pluginState: DecorationSet = getDecorationsFromPlugin(state);
 
         // the decorations should be loaded
         expect(pluginState).not.toBe(DecorationSet.empty);
@@ -137,8 +145,7 @@ describe("highlightPlugin", () => {
         );
 
         // TODO check all props?
-        const pluginState: DecorationSet = state.plugins[0].getState(state)
-            .decorations;
+        const pluginState: DecorationSet = getDecorationsFromPlugin(state);
 
         // the decorations should NOT be loaded
         expect(pluginState).toBe(DecorationSet.empty);
@@ -161,8 +168,7 @@ describe("highlightPlugin", () => {
         ]);
 
         // TODO check all props?
-        const pluginState: DecorationSet = state.plugins[0].getState(state)
-            .decorations;
+        const pluginState: DecorationSet = getDecorationsFromPlugin(state);
 
         // the decorations should be loaded
         expect(pluginState).not.toBe(DecorationSet.empty);
@@ -237,7 +243,7 @@ describe("highlightPlugin", () => {
 
         // get the middle code block (and make sure we've got the right one)
         const middleBlock = state.doc.nodeAt(initialPositions[1]);
-        expect(middleBlock?.eq(state.doc.child(1)));
+        expect(middleBlock?.eq(state.doc.child(1))).toBe(true);
 
         // add a transaction that alters the doc
         const addedText = "testing";

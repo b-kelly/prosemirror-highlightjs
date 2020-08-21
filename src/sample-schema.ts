@@ -24,15 +24,15 @@ export const schema = new Schema({
                     tag: "pre",
                     preserveWhitespace: "full",
                     getAttrs: (node) => ({
-                        // TODO support (string | Node) type
-                        params: (<any>node).getAttribute("data-params") || "",
+                        params:
+                            (<Element>node)?.getAttribute("data-params") || "",
                     }),
                 },
             ],
             toDOM(node) {
                 return [
                     "pre",
-                    { "data-params": node.attrs.params },
+                    { "data-params": node.attrs.params as string },
                     ["code", 0],
                 ];
             },

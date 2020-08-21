@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import hljs from "highlight.js/lib/core";
-import { DOMParser } from "prosemirror-model";
+import { DOMParser, Node } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 import { highlightPlugin } from "../src/index";
 import { schema } from "../src/sample-schema";
@@ -17,7 +18,7 @@ hljs.registerAliases("js_alias", {
     languageName: "javascript",
 });
 
-export function createDoc(input: { code: string; language?: string }[]) {
+export function createDoc(input: { code: string; language?: string }[]): Node {
     const doc = document.createElement("div");
 
     doc.innerHTML = input.reduce((p, n) => {
@@ -35,7 +36,7 @@ export function createDoc(input: { code: string; language?: string }[]) {
 export function createStateImpl(
     input: { code: string; language?: string }[],
     addPlugins = true
-) {
+): EditorState {
     return EditorState.create({
         doc: createDoc(input),
         schema: schema,
@@ -47,7 +48,7 @@ export function createState(
     code: string,
     language?: string,
     addPlugins = true
-) {
+): EditorState {
     return createStateImpl(
         [
             {

@@ -14,7 +14,7 @@ interface Renderer {
     addText: (text: string) => void;
     openNode: (node: DataNode) => void;
     closeNode: (node: DataNode) => void;
-    value: () => any;
+    value: () => unknown;
 }
 
 type RendererNode = {
@@ -70,7 +70,7 @@ export function getHighlightDecorations(
         pos: number,
         decorations: Decoration[]
     ) => void
-) {
+): Decoration[] {
     if (!doc || !doc.nodeSize || !nodeTypes?.length || !languageExtractor) {
         return [];
     }
