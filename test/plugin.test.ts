@@ -213,20 +213,25 @@ describe("highlightPlugin", () => {
     });
 
     it("should update some cache decorations when a single node is updated", () => {
-        let state = createStateImpl([
+        const blockContents = [
             {
                 code: `console.log("hello world");`,
                 language: "javascript",
             },
             {
-                code: `just some text`,
-                language: "plaintext",
+                code: `print("hello world")`,
+                language: "python",
             },
             {
                 code: `Debug.Log("hello world");`,
                 language: "csharp",
             },
-        ]);
+            {
+                code: `just some text`,
+                language: "plaintext",
+            },
+        ];
+        let state = createStateImpl(blockContents);
 
         const initialPluginState = state.plugins[0].getState(state) as {
             cache: DecorationCache;
@@ -241,9 +246,8 @@ describe("highlightPlugin", () => {
             .map((k) => +k)
             .sort();
 
-        // get the middle code block (and make sure we've got the right one)
-        const middleBlock = state.doc.nodeAt(initialPositions[1]);
-        expect(middleBlock?.eq(state.doc.child(1))).toBe(true);
+        // plaintext blocks don't get *any* decorations, so expect the cache to not include these
+        expect(initialPositions).toHaveLength(blockContents.length - 1);
 
         // add a transaction that alters the doc
         const addedText = "testing";
