@@ -6,15 +6,19 @@ import { getHighlightDecorations } from "./getHighlightDecorations";
 
 /** Describes the current state of the highlightPlugin  */
 interface HighlightPluginState {
-    cache: DecorationCache,
-    decorations: DecorationSet
+    cache: DecorationCache;
+    decorations: DecorationSet;
 }
 
 /** Represents a cache of doc positions to the node and decorations at that position */
 export class DecorationCache {
-    private cache: { [pos: number]: { node: ProseMirrorNode, decorations: Decoration[] } };
+    private cache: {
+        [pos: number]: { node: ProseMirrorNode; decorations: Decoration[] };
+    };
 
-    constructor(cache: { [pos: number]: { node: ProseMirrorNode, decorations: Decoration[] } }) {
+    constructor(cache: {
+        [pos: number]: { node: ProseMirrorNode; decorations: Decoration[] };
+    }) {
         this.cache = { ...cache };
     }
 
@@ -43,7 +47,12 @@ export class DecorationCache {
      * @param node The new node to place in cache
      * @param decorations The new decorations to place in cache
      */
-    replace(oldPos: number, newPos: number, node: ProseMirrorNode, decorations: Decoration[]) {
+    replace(
+        oldPos: number,
+        newPos: number,
+        node: ProseMirrorNode,
+        decorations: Decoration[]
+    ) {
         this.remove(oldPos);
         this.set(newPos, node, decorations);
     }
@@ -60,12 +69,12 @@ export class DecorationCache {
      * Invalidates the cache by removing all decoration entries on nodes that have changed,
      * updating the positions of the nodes that haven't and removing all the entries that have been deleted;
      * NOTE: this does not affect the current cache, but returns an entirely new one
-     * @param tr A transaction to map the current cache to 
+     * @param tr A transaction to map the current cache to
      */
     invalidate(tr: Transaction) {
         const returnCache = new DecorationCache(this.cache);
         const mapping = tr.mapping;
-        Object.keys(this.cache).forEach(k => {
+        Object.keys(this.cache).forEach((k) => {
             const pos = +k;
             const result = mapping.mapResult(pos);
             const mappedNode = tr.doc.nodeAt(result.pos);
@@ -73,13 +82,19 @@ export class DecorationCache {
 
             if (result.deleted || !mappedNode || !mappedNode.eq(node)) {
                 returnCache.remove(pos);
-            }
-            else if (pos !== result.pos) {
+            } else if (pos !== result.pos) {
                 // update the decorations' from/to values to match the new node position
                 const offset = result.pos - pos;
-                // @ts-expect-error TODO types are out of date here?
-                const updatedDecorations = decorations.map(d => d.copy(d.from + offset, d.to + offset) as Decoration);
-                returnCache.replace(pos, result.pos, mappedNode, updatedDecorations);
+                const updatedDecorations = decorations.map(
+                    // @ts-expect-error TODO types are out of date here?
+                    (d) => d.copy(d.from + offset, d.to + offset) as Decoration
+                );
+                returnCache.replace(
+                    pos,
+                    result.pos,
+                    mappedNode,
+                    updatedDecorations
+                );
             }
         });
 
@@ -93,12 +108,18 @@ export class DecorationCache {
  * @param nodeTypes An array containing all the node types to target for highlighting
  * @param languageExtractor A method that is passed a prosemirror node and returns the language string to use when highlighting that node; defaults to using `node.attrs.params`
  */
-export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_block"], languageExtractor?: (node: ProseMirrorNode) => string) {
+export function highlightPlugin(
+    hljs: HLJSApi,
+    nodeTypes: string[] = ["code_block"],
+    languageExtractor?: (node: ProseMirrorNode) => string
+) {
     nodeTypes = nodeTypes;
 
-    const extractor = languageExtractor || function (node: ProseMirrorNode) {
-        return node.attrs.params?.split(" ")[0] || "";
-    };
+    const extractor =
+        languageExtractor ||
+        function (node: ProseMirrorNode) {
+            return node.attrs.params?.split(" ")[0] || "";
+        };
 
     return new Plugin<HighlightPluginState>({
         state: {
@@ -110,11 +131,13 @@ export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_bloc
                     nodeTypes,
                     extractor,
                     undefined,
-                    (b, pos, decorations) => { cache.set(pos, b, decorations); }
+                    (b, pos, decorations) => {
+                        cache.set(pos, b, decorations);
+                    }
                 );
                 return {
                     cache: cache,
-                    decorations: DecorationSet.create(instance.doc, content)
+                    decorations: DecorationSet.create(instance.doc, content),
                 };
             },
             apply(tr, data) {
@@ -122,7 +145,7 @@ export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_bloc
                 if (!tr.docChanged) {
                     return {
                         cache: updatedCache,
-                        decorations: data.decorations.map(tr.mapping, tr.doc)
+                        decorations: data.decorations.map(tr.mapping, tr.doc),
                     };
                 }
 
@@ -132,12 +155,14 @@ export function highlightPlugin(hljs: HLJSApi, nodeTypes: string[] = ["code_bloc
                     nodeTypes,
                     extractor,
                     (_, pos) => updatedCache.get(pos)?.decorations,
-                    (b, pos, decorations) => { updatedCache.set(pos, b, decorations); }
+                    (b, pos, decorations) => {
+                        updatedCache.set(pos, b, decorations);
+                    }
                 );
 
                 return {
                     cache: updatedCache,
-                    decorations: DecorationSet.create(tr.doc, content)
+                    decorations: DecorationSet.create(tr.doc, content),
                 };
             },
         },

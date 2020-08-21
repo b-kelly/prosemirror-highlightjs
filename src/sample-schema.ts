@@ -19,21 +19,23 @@ export const schema = new Schema({
             defining: true,
             marks: "",
             attrs: { params: { default: "" } },
-            parseDOM: [{
-                tag: "pre",
-                preserveWhitespace: "full",
-                getAttrs: node => ({
-                    // TODO support (string | Node) type
-                    params: (<any>node).getAttribute("data-params") || ""
-                })
-            }],
+            parseDOM: [
+                {
+                    tag: "pre",
+                    preserveWhitespace: "full",
+                    getAttrs: (node) => ({
+                        // TODO support (string | Node) type
+                        params: (<any>node).getAttribute("data-params") || "",
+                    }),
+                },
+            ],
             toDOM(node) {
                 return [
                     "pre",
                     { "data-params": node.attrs.params },
-                    ["code", 0]
-                ]
-            }
+                    ["code", 0],
+                ];
+            },
         },
     },
     marks: {},

@@ -1,18 +1,16 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist/",
-    "module": "es6",
-    "target": "es5",
-    "allowJs": false,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "declaration": true,
-    "strict": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "sourceMap": true
-  },
-  "include": [
-    "./src/**/*"
-  ]
+    "compilerOptions": {
+        "outDir": "./dist/",
+        "module": "es6",
+        "target": "es5",
+        "allowJs": false,
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+        "declaration": true,
+        "strict": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "sourceMap": true
+    },
+    "include": ["./src/**/*"]
 }

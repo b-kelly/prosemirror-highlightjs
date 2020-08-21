@@ -13,7 +13,12 @@ function getCacheContents(cache: DecorationCache) {
 describe("DecorationCache", () => {
     it("should do basic CRUD operations", () => {
         // init with a pre-filled cache and check
-        const initial = { 0: { node: schema.node("code_block", { params: "test0" }), decorations: [] } };
+        const initial = {
+            0: {
+                node: schema.node("code_block", { params: "test0" }),
+                decorations: [],
+            },
+        };
         const cache = new DecorationCache(initial);
         expect(getCacheContents(cache)).toStrictEqual(initial);
 
@@ -48,7 +53,9 @@ describe("DecorationCache", () => {
         expect(cache.get(30)).toBeNull();
 
         // remove non-existing
-        expect(() => { cache.remove(-1) }).not.toThrow();
+        expect(() => {
+            cache.remove(-1);
+        }).not.toThrow();
     });
 
     it("should not invalidate on a transaction that does not change the doc", () => {
@@ -56,7 +63,9 @@ describe("DecorationCache", () => {
         const doc = state.doc;
         let tr = state.tr;
 
-        const cache = new DecorationCache({ 0: { node: doc.nodeAt(0)!, decorations: [] } });
+        const cache = new DecorationCache({
+            0: { node: doc.nodeAt(0)!, decorations: [] },
+        });
 
         // add a transaction that doesn't alter the doc
         tr = tr.setSelection(TextSelection.create(tr.doc, 1, 5));
@@ -76,10 +85,19 @@ describe("DecorationCache", () => {
         const doc = state.doc;
         let tr = state.tr;
 
-        const cache = new DecorationCache({ 0: { node: doc.nodeAt(0)!, decorations: [] } });
+        const cache = new DecorationCache({
+            0: { node: doc.nodeAt(0)!, decorations: [] },
+        });
 
         // add a transaction that alters the doc
-        tr = tr.insert(0, schema.node("code_block", { params: "cpp" }, schema.text(`cout << "hello world";`)))
+        tr = tr.insert(
+            0,
+            schema.node(
+                "code_block",
+                { params: "cpp" },
+                schema.text(`cout << "hello world";`)
+            )
+        );
 
         // ensure the docs have changed
         expect(tr.doc.eq(doc)).toBe(false);
@@ -98,12 +116,13 @@ describe("highlightPlugin", () => {
     it.each([
         ["should highlight with loaded language", "javascript"],
         ["should auto-highlight with loaded language", undefined],
-        ["should highlight on aliased loaded language", "js_alias"]
+        ["should highlight on aliased loaded language", "js_alias"],
     ])("%s", (_, language) => {
         const state = createState(`console.log("hello world");`, language);
 
         // TODO check all props?
-        const pluginState: DecorationSet = state.plugins[0].getState(state).decorations;
+        const pluginState: DecorationSet = state.plugins[0].getState(state)
+            .decorations;
 
         // the decorations should be loaded
         expect(pluginState).not.toBe(DecorationSet.empty);
@@ -112,10 +131,14 @@ describe("highlightPlugin", () => {
     });
 
     it("should skip highlighting on invalid/not loaded language", () => {
-        const state = createState(`console.log("hello world");`, "fake_language");
+        const state = createState(
+            `console.log("hello world");`,
+            "fake_language"
+        );
 
         // TODO check all props?
-        const pluginState: DecorationSet = state.plugins[0].getState(state).decorations;
+        const pluginState: DecorationSet = state.plugins[0].getState(state)
+            .decorations;
 
         // the decorations should NOT be loaded
         expect(pluginState).toBe(DecorationSet.empty);
@@ -125,20 +148,21 @@ describe("highlightPlugin", () => {
         const state = createStateImpl([
             {
                 code: `console.log("hello world");`,
-                language: "javascript"
+                language: "javascript",
             },
             {
                 code: `System.out.println("hello world");`,
-                language: "java"
+                language: "java",
             },
             {
                 code: `Debug.Log("hello world");`,
-                language: "csharp"
-            }
+                language: "csharp",
+            },
         ]);
 
         // TODO check all props?
-        const pluginState: DecorationSet = state.plugins[0].getState(state).decorations;
+        const pluginState: DecorationSet = state.plugins[0].getState(state)
+            .decorations;
 
         // the decorations should be loaded
         expect(pluginState).not.toBe(DecorationSet.empty);
@@ -150,27 +174,35 @@ describe("highlightPlugin", () => {
         let state = createStateImpl([
             {
                 code: `console.log("hello world");`,
-                language: "javascript"
+                language: "javascript",
             },
             {
                 code: `just some text`,
-                language: "plaintext"
+                language: "plaintext",
             },
             {
                 code: `Debug.Log("hello world");`,
-                language: "csharp"
-            }
+                language: "csharp",
+            },
         ]);
 
-        const initialPluginState = state.plugins[0].getState(state) as { cache: DecorationCache, decorations: DecorationSet };
+        const initialPluginState = state.plugins[0].getState(state) as {
+            cache: DecorationCache;
+            decorations: DecorationSet;
+        };
         expect(initialPluginState.decorations).not.toBe(DecorationSet.empty);
 
         // add a transaction that doesn't alter the doc
-        const tr = state.tr.setSelection(TextSelection.create(state.tr.doc, 1, 5));
+        const tr = state.tr.setSelection(
+            TextSelection.create(state.tr.doc, 1, 5)
+        );
         state = state.apply(tr);
 
         // get the updated state and check that it matches the old
-        const updatedPluginState = state.plugins[0].getState(state) as { cache: DecorationCache, decorations: DecorationSet };
+        const updatedPluginState = state.plugins[0].getState(state) as {
+            cache: DecorationCache;
+            decorations: DecorationSet;
+        };
         expect(updatedPluginState).toStrictEqual(initialPluginState);
     });
 
@@ -178,23 +210,30 @@ describe("highlightPlugin", () => {
         let state = createStateImpl([
             {
                 code: `console.log("hello world");`,
-                language: "javascript"
+                language: "javascript",
             },
             {
                 code: `just some text`,
-                language: "plaintext"
+                language: "plaintext",
             },
             {
                 code: `Debug.Log("hello world");`,
-                language: "csharp"
-            }
+                language: "csharp",
+            },
         ]);
 
-        const initialPluginState = state.plugins[0].getState(state) as { cache: DecorationCache, decorations: DecorationSet };
+        const initialPluginState = state.plugins[0].getState(state) as {
+            cache: DecorationCache;
+            decorations: DecorationSet;
+        };
         expect(initialPluginState.decorations).not.toBe(DecorationSet.empty);
 
         // get the positions of the blocks from the cache
-        const initialPositions = Object.keys(getCacheContents(initialPluginState.cache)).map(k => +k).sort();
+        const initialPositions = Object.keys(
+            getCacheContents(initialPluginState.cache)
+        )
+            .map((k) => +k)
+            .sort();
 
         // get the middle code block (and make sure we've got the right one)
         const middleBlock = state.doc.nodeAt(initialPositions[1]);
@@ -206,19 +245,30 @@ describe("highlightPlugin", () => {
         state = state.apply(tr);
 
         // get the updated state and check that the positions are offset as expected and the decorations match
-        const updatedPluginState = state.plugins[0].getState(state) as { cache: DecorationCache, decorations: DecorationSet };
-        const updatedPositions = Object.keys(getCacheContents(updatedPluginState.cache)).map(k => +k).sort();
+        const updatedPluginState = state.plugins[0].getState(state) as {
+            cache: DecorationCache;
+            decorations: DecorationSet;
+        };
+        const updatedPositions = Object.keys(
+            getCacheContents(updatedPluginState.cache)
+        )
+            .map((k) => +k)
+            .sort();
 
         // content after this node was untouched, so the position and data hasn't changed
         expect(updatedPositions[0]).toBe(initialPositions[0]);
-        expect(updatedPluginState.cache.get(updatedPositions[0])).toStrictEqual(initialPluginState.cache.get(initialPositions[0]))
+        expect(updatedPluginState.cache.get(updatedPositions[0])).toStrictEqual(
+            initialPluginState.cache.get(initialPositions[0])
+        );
 
         // this node was touched; the position should not have changed, but the nodes and decorations will have
         let initialContent = initialPluginState.cache.get(initialPositions[1]);
-        let updatedContent = updatedPluginState.cache.get(updatedPositions[1])
+        let updatedContent = updatedPluginState.cache.get(updatedPositions[1]);
         expect(updatedPositions[1]).toBe(initialPositions[1]);
         expect(updatedContent.node).not.toStrictEqual(initialContent.node);
-        expect(updatedContent.node.textContent).toBe(addedText + initialContent.node.textContent);
+        expect(updatedContent.node.textContent).toBe(
+            addedText + initialContent.node.textContent
+        );
 
         updatedContent.decorations.forEach((d, i) => {
             const initial = initialContent.decorations[i];
@@ -228,8 +278,10 @@ describe("highlightPlugin", () => {
 
         // this node was not touched, but its position, along with all the decorations, have been shifted forward
         initialContent = initialPluginState.cache.get(initialPositions[2]);
-        updatedContent = updatedPluginState.cache.get(updatedPositions[2])
-        expect(updatedPositions[2]).toBe(initialPositions[2] + addedText.length);
+        updatedContent = updatedPluginState.cache.get(updatedPositions[2]);
+        expect(updatedPositions[2]).toBe(
+            initialPositions[2] + addedText.length
+        );
         expect(updatedContent.node).toStrictEqual(initialContent.node);
 
         updatedContent.decorations.forEach((d, i) => {

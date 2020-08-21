@@ -5,23 +5,23 @@ import { Decoration } from "prosemirror-view";
 /** TODO default emitter type for hljs */
 interface TokenTreeEmitter extends Emitter {
     options: HLJSOptions;
-    walk: (r: Renderer) => void
+    walk: (r: Renderer) => void;
 }
 
-type DataNode = { kind?: string, sublanguage?: boolean };
+type DataNode = { kind?: string; sublanguage?: boolean };
 
 interface Renderer {
-    addText: (text: string) => void,
-    openNode: (node: DataNode) => void,
-    closeNode: (node: DataNode) => void,
-    value: () => any
-};
+    addText: (text: string) => void;
+    openNode: (node: DataNode) => void;
+    closeNode: (node: DataNode) => void;
+    value: () => any;
+}
 
 type RendererNode = {
-    from: number,
-    to: number,
-    kind?: string,
-    classes: string
+    from: number;
+    to: number;
+    kind?: string;
+    classes: string;
 };
 
 /**
@@ -29,8 +29,11 @@ type RendererNode = {
  * @param doc The document to search
  * @param nodeTypes The types of nodes to get
  */
-function getNodesOfType(doc: ProseMirrorNode, nodeTypes: string[]): { node: ProseMirrorNode, pos: number }[] {
-    let blocks: { node: ProseMirrorNode, pos: number }[] = [];
+function getNodesOfType(
+    doc: ProseMirrorNode,
+    nodeTypes: string[]
+): { node: ProseMirrorNode; pos: number }[] {
+    let blocks: { node: ProseMirrorNode; pos: number }[] = [];
     doc.descendants((child, pos) => {
         if (child.isBlock && nodeTypes.indexOf(child.type.name) > -1) {
             blocks.push({
@@ -62,8 +65,12 @@ export function getHighlightDecorations(
     nodeTypes: string[],
     languageExtractor: (node: ProseMirrorNode) => string | null,
     preRenderer?: (block: ProseMirrorNode, pos: number) => Decoration[] | null,
-    postRenderer?: (block: ProseMirrorNode, pos: number, decorations: Decoration[]) => void) {
-
+    postRenderer?: (
+        block: ProseMirrorNode,
+        pos: number,
+        decorations: Decoration[]
+    ) => void
+) {
     if (!doc || !doc.nodeSize || !nodeTypes?.length || !languageExtractor) {
         return [];
     }
@@ -72,7 +79,7 @@ export function getHighlightDecorations(
 
     let decorations: Decoration[] = [];
 
-    blocks.forEach(b => {
+    blocks.forEach((b) => {
         // attempt to run the prerenderer if it exists
         if (preRenderer) {
             const prerenderedDecorations = preRenderer(b.node, b.pos);
@@ -91,7 +98,9 @@ export function getHighlightDecorations(
             return;
         }
 
-        let result = language ? hljs.highlight(language, b.node.textContent) : hljs.highlightAuto(b.node.textContent);
+        let result = language
+            ? hljs.highlight(language, b.node.textContent)
+            : hljs.highlightAuto(b.node.textContent);
         let emitter = result.emitter as TokenTreeEmitter;
 
         let renderer = new ProseMirrorRenderer(
@@ -103,7 +112,7 @@ export function getHighlightDecorations(
         let value = renderer.value();
 
         let localDecorations: Decoration[] = [];
-        value.forEach(v => {
+        value.forEach((v) => {
             if (!v.kind) {
                 return;
             }
@@ -131,7 +140,11 @@ class ProseMirrorRenderer implements Renderer {
     private classPrefix: string;
     private currentPosition: number;
 
-    constructor(tree: TokenTreeEmitter, startingBlockPos: number, classPrefix: string) {
+    constructor(
+        tree: TokenTreeEmitter,
+        startingBlockPos: number,
+        classPrefix: string
+    ) {
         this.buffer = [];
         this.nodeQueue = [];
         this.classPrefix = classPrefix;
