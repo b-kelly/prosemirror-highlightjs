@@ -15,8 +15,6 @@ hljs.registerLanguage(
     require("highlight.js/lib/languages/javascript")
 );
 
-console.log(schema.nodes.code_block);
-
 var extendedSchema = new Schema({
     nodes: {
         doc: {
