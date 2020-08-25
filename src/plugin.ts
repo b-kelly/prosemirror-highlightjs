@@ -84,13 +84,14 @@ export class DecorationCache {
                 returnCache.remove(pos);
             } else if (pos !== result.pos) {
                 // update the decorations' from/to values to match the new node position
-                const offset = result.pos - pos;
-                const updatedDecorations = decorations.map(
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-expect-error TODO `copy` is not actually part of the exposed api for Decoration
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                    (d) => d.copy(d.from + offset, d.to + offset) as Decoration
-                );
+                const updatedDecorations = decorations
+                    .map((d) => {
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-expect-error TODO `map` is not actually part of the exposed api for Decoration
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+                        return d.map(mapping, 0, 0) as Decoration;
+                    })
+                    .filter((d) => d !== null);
                 returnCache.replace(
                     pos,
                     result.pos,
