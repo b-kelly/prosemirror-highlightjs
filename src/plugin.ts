@@ -1,8 +1,21 @@
 /// <reference types="highlight.js" />
 import { Node as ProseMirrorNode } from "prosemirror-model";
 import { Plugin, Transaction } from "prosemirror-state";
+import type { Mapping } from "prosemirror-transform";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getHighlightDecorations } from "./getHighlightDecorations";
+
+// TODO `map` is not actually part of the exposed api for Decoration,
+// so we have to add our own type definitions to expose it
+declare module "prosemirror-view" {
+    interface Decoration<T> {
+        map: (
+            mapping: Mapping,
+            offset: number,
+            oldOffset: number
+        ) => Decoration<T>;
+    }
+}
 
 /** Describes the current state of the highlightPlugin  */
 export interface HighlightPluginState {
@@ -80,17 +93,12 @@ export class DecorationCache {
             const mappedNode = tr.doc.nodeAt(result.pos);
             const { node, decorations } = this.get(pos);
 
-            if (result.deleted || !mappedNode || !mappedNode.eq(node)) {
+            if (result.deleted || !mappedNode?.eq(node)) {
                 returnCache.remove(pos);
             } else if (pos !== result.pos) {
                 // update the decorations' from/to values to match the new node position
                 const updatedDecorations = decorations
-                    .map((d) => {
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-expect-error TODO `map` is not actually part of the exposed api for Decoration
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-                        return d.map(mapping, 0, 0) as Decoration;
-                    })
+                    .map((d) => d.map(mapping, 0, 0))
                     .filter((d) => d !== null);
                 returnCache.replace(
                     pos,
