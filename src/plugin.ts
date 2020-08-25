@@ -87,7 +87,7 @@ export class DecorationCache {
                 const offset = result.pos - pos;
                 const updatedDecorations = decorations.map(
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-expect-error TODO types are out of date here?
+                    // @ts-expect-error TODO `copy` is not actually part of the exposed api for Decoration
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     (d) => d.copy(d.from + offset, d.to + offset) as Decoration
                 );
