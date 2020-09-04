@@ -16,9 +16,13 @@ hljs.registerLanguage("python", require("highlight.js/lib/languages/python"));
 
 hljs.registerLanguage("java", require("highlight.js/lib/languages/java"));
 
+hljs.registerLanguage("xml", require("highlight.js/lib/languages/xml"));
+
 hljs.registerAliases("js_alias", {
     languageName: "javascript",
 });
+
+export const hljsInstance = hljs;
 
 export function createDoc(input: { code: string; language?: string }[]): Node {
     const doc = document.createElement("div");
@@ -26,9 +30,9 @@ export function createDoc(input: { code: string; language?: string }[]): Node {
     doc.innerHTML = input.reduce((p, n) => {
         return (
             p +
-            `<pre data-params="${n.language || ""}"><code>${
-                n.code
-            }</code></pre>`
+            `<pre data-params="${n.language || ""}"><code>${n.code
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")}</code></pre>`
         );
     }, "");
 
