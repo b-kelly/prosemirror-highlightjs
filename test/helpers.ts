@@ -24,15 +24,24 @@ hljs.registerAliases("js_alias", {
 
 export const hljsInstance = hljs;
 
+function escapeHtml(html: string) {
+    return html
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;");
+}
+
 export function createDoc(input: { code: string; language?: string }[]): Node {
     const doc = document.createElement("div");
 
     doc.innerHTML = input.reduce((p, n) => {
         return (
             p +
-            `<pre data-params="${n.language || ""}"><code>${n.code
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")}</code></pre>`
+            `<pre data-params="${n.language || ""}"><code>${escapeHtml(
+                n.code
+            )}</code></pre>`
         );
     }, "");
 
@@ -65,3 +74,60 @@ export function createState(
         addPlugins
     );
 }
+
+export const nativeVsPluginTests = [
+    [
+        "xml",
+        `<!doctype html>
+<head lang="en">
+<style>
+    #id-style {
+        background-color: #efefef;
+        padding: 12px 6px;
+        width: 100%;
+    }
+
+    .class-style {
+        position: absolute;
+        top: 0;
+    }
+
+    @media screen and (aspect-ratio: 11/5) {
+        .nested-style {
+            invalid: property;
+        }
+    }
+</style>
+</head>
+<body data-test="test attribute">
+<!-- yikes -->
+<blink>Hello world!</blink>
+</body>
+<script>
+/* test comment 1 */
+const x = (a, b) => true;
+// test comment 2
+var y = function() {
+    console.log("Hello world");
+};
+</script>`,
+    ],
+    [
+        "javascript",
+        `function $initHighlight(block, cls) {
+try {
+    const x = true;
+} catch (e) {
+    /* handle exception */
+}
+for (var i = 0 / 2; i < classes.length; i++) {
+    if (checkCondition(classes[i]) === undefined)
+    console.log('undefined');
+}
+
+return;
+}
+
+export $initHighlight;`,
+    ],
+];
