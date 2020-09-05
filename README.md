@@ -14,7 +14,7 @@ let state = new EditorView(..., {
 });
 ```
 
-Or just import the decoration parser and write your own plugin:
+Or import just the decoration parser and write your own plugin:
 
 ```js
 import { getHighlightDecorations } from "prosemirror-highlightjs";
@@ -52,16 +52,8 @@ let plugin = new Plugin({
 });
 ```
 
-## Running locally
+## Theming considerations
 
-```
-npm i
-npm start
-```
-
-## Running tests
-
-```
-npm i
-npm test
-```
+Due to how ProseMirror renders decorations, some existing highlight.js themes might not work as expected.
+ProseMirror collapses all nested/overlapping decoration structures, causing a structure such as
+`.hljs-function > (.hljs-keyword + .hljs-title)` to instead render as `.hljs-function.hljs-keyword + .hljs-function.hljs.title`.
