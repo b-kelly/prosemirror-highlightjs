@@ -50,26 +50,42 @@ function getNodesOfType(
     return blocks;
 }
 
+interface GetHighlightDecorationsOptions {
+    /**
+     * A method that is called before the render process begins where any non-null return value cancels the render; useful for decoration caching on untouched nodes
+     * @param block The node that is about to render
+     * @param pos The position in the document of the node
+     * @returns An array of the decorations that should be used instead of rendering; cancels the render if a non-null value is returned
+     */
+    preRenderer?: (block: ProseMirrorNode, pos: number) => Decoration[] | null;
+
+    /**
+     * A method that is called after the render process ends with the result of the node render passed; useful for decoration caching
+     * @param block The node that was renderer
+     * @param pos The position of the node in the document
+     * @param decorations The decorations that were rendered for this node
+     */
+    postRenderer?: (
+        block: ProseMirrorNode,
+        pos: number,
+        decorations: Decoration[]
+    ) => void;
+}
+
 /**
  * Gets all highlighting decorations from a ProseMirror document
  * @param doc The doc to search applicable blocks to highlight
  * @param hljs The pre-configured highlight.js instance to use for parsing
  * @param nodeTypes An array containing all the node types to target for highlighting
  * @param languageExtractor A method that is passed a prosemirror node and returns the language string to use when highlighting that node
- * @param preRenderer A method that is passed the node (and doc position) that is about to render and is expected to return a Decoration[], which will cancel the render; useful for decoration caching on untouched nodes
- * @param postRenderer A method that is passed the node, position and rendered decorations; useful for decoration caching
+ * @param options The options to alter the behavior of getHighlightDecorations
  */
 export function getHighlightDecorations(
     doc: ProseMirrorNode,
     hljs: HLJSApi,
     nodeTypes: string[],
     languageExtractor: (node: ProseMirrorNode) => string | null,
-    preRenderer?: (block: ProseMirrorNode, pos: number) => Decoration[] | null,
-    postRenderer?: (
-        block: ProseMirrorNode,
-        pos: number,
-        decorations: Decoration[]
-    ) => void
+    options?: GetHighlightDecorationsOptions
 ): Decoration[] {
     if (!doc || !doc.nodeSize || !nodeTypes?.length || !languageExtractor) {
         return [];
@@ -81,8 +97,8 @@ export function getHighlightDecorations(
 
     blocks.forEach((b) => {
         // attempt to run the prerenderer if it exists
-        if (preRenderer) {
-            const prerenderedDecorations = preRenderer(b.node, b.pos);
+        if (options?.preRenderer) {
+            const prerenderedDecorations = options.preRenderer(b.node, b.pos);
 
             // if the returned decorations are non-null, use them instead of rendering our own
             if (prerenderedDecorations) {
@@ -124,8 +140,8 @@ export function getHighlightDecorations(
             localDecorations.push(decoration);
         });
 
-        if (postRenderer) {
-            postRenderer(b.node, b.pos, localDecorations);
+        if (options?.postRenderer) {
+            options.postRenderer(b.node, b.pos, localDecorations);
         }
 
         decorations = [...decorations, ...localDecorations];

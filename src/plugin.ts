@@ -140,9 +140,10 @@ export function highlightPlugin(
                     hljs,
                     nodeTypes,
                     extractor,
-                    undefined,
-                    (b, pos, decorations) => {
-                        cache.set(pos, b, decorations);
+                    {
+                        postRenderer: (b, pos, decorations) => {
+                            cache.set(pos, b, decorations);
+                        },
                     }
                 );
                 return {
@@ -164,9 +165,12 @@ export function highlightPlugin(
                     hljs,
                     nodeTypes,
                     extractor,
-                    (_, pos) => updatedCache.get(pos)?.decorations,
-                    (b, pos, decorations) => {
-                        updatedCache.set(pos, b, decorations);
+                    {
+                        preRenderer: (_, pos) =>
+                            updatedCache.get(pos)?.decorations,
+                        postRenderer: (b, pos, decorations) => {
+                            updatedCache.set(pos, b, decorations);
+                        },
                     }
                 );
 

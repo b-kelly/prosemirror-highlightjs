@@ -94,11 +94,13 @@ describe("getHighlightDecorations", () => {
             hljsInstance,
             ["code_block"],
             () => "javascript",
-            (node, pos) => {
-                expect(node).not.toBeNull();
-                expect(node.type.name).toBe("code_block");
-                expect(typeof pos === "number").toBe(true);
-                return [];
+            {
+                preRenderer: (node, pos) => {
+                    expect(node).not.toBeNull();
+                    expect(node.type.name).toBe("code_block");
+                    expect(typeof pos === "number").toBe(true);
+                    return [];
+                },
             }
         );
 
@@ -115,7 +117,9 @@ describe("getHighlightDecorations", () => {
             hljsInstance,
             ["code_block"],
             () => "javascript",
-            () => null
+            {
+                preRenderer: () => null,
+            }
         );
 
         expect(decorations).toBeTruthy();
@@ -133,13 +137,14 @@ describe("getHighlightDecorations", () => {
             hljsInstance,
             ["code_block"],
             () => "javascript",
-            undefined,
-            (node, pos, decos) => {
-                expect(node).not.toBeNull();
-                expect(node.type.name).toBe("code_block");
-                expect(typeof pos).toBe("number");
+            {
+                postRenderer: (node, pos, decos) => {
+                    expect(node).not.toBeNull();
+                    expect(node.type.name).toBe("code_block");
+                    expect(typeof pos).toBe("number");
 
-                renderedDecorations = decos;
+                    renderedDecorations = decos;
+                },
             }
         );
 
