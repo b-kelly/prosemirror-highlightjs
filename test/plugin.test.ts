@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { DecorationSet } from "prosemirror-view";
+import { DecorationSet, EditorView } from "prosemirror-view";
 import { createState, createStateImpl } from "./helpers";
 import { DecorationCache } from "../src";
 import { schema } from "../src/sample-schema";
@@ -310,18 +310,24 @@ describe("highlightPlugin", () => {
     it("should save autodetected languages back onto the node", () => {
         let state = createState(`console.log("hello world");`);
 
-        const pluginState: DecorationSet = getDecorationsFromPlugin(state);
-        let params = getNodeParamAttr(state);
+        // the autodetected language stuff is only set when in a view (unfortunately...)
+        const view = new EditorView(undefined, {
+            state,
+        });
+
+        const pluginState: DecorationSet = getDecorationsFromPlugin(view.state);
+        let params = getNodeParamAttr(view.state);
 
         // the decorations should be loaded (indicating the plugin highlighted the content)
         expect(pluginState).not.toBe(DecorationSet.empty);
 
-        // TODO ideally the value *should* be set on first autohighlight, but... currently it doesn't...
-        // expect(params).toBe("javascript");
+        // the detected language should be set onto the node on first plugin run
+        expect(params).toBe("javascript");
 
         // fire off a transaction to make sure that the value stuck
-        state = state.applyTransaction(state.tr.insertText("a", 1)).state;
-        params = getNodeParamAttr(state);
+        state = view.state.applyTransaction(state.tr.insertText("a", 1)).state;
+        view.updateState(state);
+        params = getNodeParamAttr(view.state);
         expect(params).toBe("javascript");
     });
 });

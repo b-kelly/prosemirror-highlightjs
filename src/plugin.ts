@@ -1,8 +1,8 @@
 /// <reference types="highlight.js" />
 import { Node as ProseMirrorNode } from "prosemirror-model";
-import { Plugin, Transaction } from "prosemirror-state";
+import { Plugin, PluginKey, Transaction } from "prosemirror-state";
 import type { Mapping } from "prosemirror-transform";
-import { Decoration, DecorationSet } from "prosemirror-view";
+import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { getHighlightDecorations } from "./getHighlightDecorations";
 
 // TODO `map` is not actually part of the exposed api for Decoration,
@@ -183,7 +183,11 @@ export function highlightPlugin(
         return { content, autodetectedLanguages };
     };
 
+    // key the plugin so we can easily find it in the state later
+    const key = new PluginKey<HighlightPluginState>();
+
     return new Plugin<HighlightPluginState>({
+        key,
         state: {
             init(_, instance) {
                 const cache = new DecorationCache({});
@@ -221,33 +225,43 @@ export function highlightPlugin(
                 return this.getState(state).decorations;
             },
         },
-        appendTransaction(_, __, newState) {
-            // TODO appendTransaction not called after plugin init, so it'll autohighlight a minimum of twice...
+        view(initialView: EditorView) {
+            // TODO `view` is only called when the state is attached to an EditorView
+            // this is likely not a problem for the majority of users, but could be an issue
+            // for consumers using this plugin server-side with no view
 
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-expect-error the type of `this` is incorrect in the types
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-            const pluginState = this.getState(newState) as HighlightPluginState;
+            // dispatches a transaction to update a node's language if needed
+            const updateNodeLanguages = (view: EditorView) => {
+                const pluginState = key.getState(view.state);
 
-            // if there's no pluginState found or if no block was autodetected, no need to do anything
-            if (!pluginState || !pluginState.autodetectedLanguages.length) {
-                return;
-            }
-
-            let tr = newState.tr;
-
-            // for each autodetected language, place it
-            pluginState.autodetectedLanguages.forEach((l) => {
-                if (l.language) {
-                    const newTr = setter(tr, l.node, l.pos, l.language);
-                    tr = newTr || tr;
+                // if there's no pluginState found or if no block was autodetected, no need to do anything
+                if (!pluginState || !pluginState.autodetectedLanguages.length) {
+                    return;
                 }
-            });
 
-            // ensure that our behind-the-scenes update doesn't get added to the editor history
-            tr = tr.setMeta("addToHistory", false);
+                let tr = view.state.tr;
 
-            return tr;
+                // for each autodetected language, place it
+                pluginState.autodetectedLanguages.forEach((l) => {
+                    if (l.language) {
+                        const newTr = setter(tr, l.node, l.pos, l.language);
+                        tr = newTr || tr;
+                    }
+                });
+
+                // ensure that our behind-the-scenes update doesn't get added to the editor history
+                tr = tr.setMeta("addToHistory", false);
+
+                view.dispatch(tr);
+            };
+
+            // go ahead and update the nodes immediately
+            updateNodeLanguages(initialView);
+
+            // update all the nodes whenever the document updates
+            return {
+                update: updateNodeLanguages,
+            };
         },
     });
 }
