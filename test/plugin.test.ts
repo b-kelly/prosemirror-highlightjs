@@ -19,6 +19,12 @@ function getDecorationsFromPlugin(editorState: EditorState) {
     return pluginState.decorations;
 }
 
+function getNodeParamAttr(state: EditorState) {
+    return (state.doc.toJSON() as {
+        content: { type: string; attrs: { [key: string]: unknown } }[];
+    }).content.find((n) => n.type === "code_block")?.attrs?.params;
+}
+
 describe("DecorationCache", () => {
     it("should do basic CRUD operations", () => {
         // init with a pre-filled cache and check
@@ -299,5 +305,23 @@ describe("highlightPlugin", () => {
             expect(d.from).toBe(initial.from + addedText.length);
             expect(d.to).toBe(initial.to + addedText.length);
         });
+    });
+
+    it("should save autodetected languages back onto the node", () => {
+        let state = createState(`console.log("hello world");`);
+
+        const pluginState: DecorationSet = getDecorationsFromPlugin(state);
+        let params = getNodeParamAttr(state);
+
+        // the decorations should be loaded (indicating the plugin highlighted the content)
+        expect(pluginState).not.toBe(DecorationSet.empty);
+
+        // TODO ideally the value *should* be set on first autohighlight, but... currently it doesn't...
+        // expect(params).toBe("javascript");
+
+        // fire off a transaction to make sure that the value stuck
+        state = state.applyTransaction(state.tr.insertText("a", 1)).state;
+        params = getNodeParamAttr(state);
+        expect(params).toBe("javascript");
     });
 });

@@ -153,6 +153,20 @@ describe("getHighlightDecorations", () => {
         expect(decorations).toEqual(renderedDecorations);
     });
 
+    it("should call autohighlightCallback", () => {
+        const doc = createDoc([{ code: `console.log("hello world!");` }]);
+
+        let detectedLanguage: string | undefined = undefined;
+
+        getHighlightDecorations(doc, hljsInstance, ["code_block"], () => null, {
+            autohighlightCallback: (_, __, language) => {
+                detectedLanguage = language;
+            },
+        });
+
+        expect(detectedLanguage).toBe("javascript");
+    });
+
     it.each(nativeVsPluginTests)(
         "should create the same decorations as a native highlightBlock call (%p)",
         (language, codeString) => {

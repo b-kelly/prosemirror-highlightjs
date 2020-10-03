@@ -21,6 +21,11 @@ declare module "prosemirror-view" {
 export interface HighlightPluginState {
     cache: DecorationCache;
     decorations: DecorationSet;
+    autodetectedLanguages: {
+        node: ProseMirrorNode;
+        pos: number;
+        language: string | undefined;
+    }[];
 }
 
 /** Represents a cache of doc positions to the node and decorations at that position */
@@ -118,11 +123,18 @@ export class DecorationCache {
  * @param hljs The pre-configured instance of highlightjs to use for parsing
  * @param nodeTypes An array containing all the node types to target for highlighting
  * @param languageExtractor A method that is passed a prosemirror node and returns the language string to use when highlighting that node; defaults to using `node.attrs.params`
+ * @param languageSetter A method that is called after language autodetection of a node in order to save a autohighlight value for future use
  */
 export function highlightPlugin(
     hljs: HLJSApi,
     nodeTypes: string[] = ["code_block"],
-    languageExtractor?: (node: ProseMirrorNode) => string
+    languageExtractor?: (node: ProseMirrorNode) => string,
+    languageSetter?: (
+        tr: Transaction,
+        node: ProseMirrorNode,
+        pos: number,
+        language: string | undefined
+    ) => Transaction | null
 ): Plugin<HighlightPluginState> {
     const extractor =
         languageExtractor ||
@@ -131,24 +143,58 @@ export function highlightPlugin(
             return params?.split(" ")[0] || "";
         };
 
+    const setter =
+        languageSetter ||
+        function (tr, node, pos, language) {
+            const attrs = node.attrs || {};
+            attrs["params"] = language;
+
+            // set the params attribute of the node to the detected language
+            return tr.setNodeMarkup(pos, undefined, attrs);
+        };
+
+    const getDecos = (doc: ProseMirrorNode, cache: DecorationCache) => {
+        const autodetectedLanguages: {
+            node: ProseMirrorNode;
+            pos: number;
+            language: string | undefined;
+        }[] = [];
+
+        const content = getHighlightDecorations(
+            doc,
+            hljs,
+            nodeTypes,
+            extractor,
+            {
+                preRenderer: (_, pos) => cache.get(pos)?.decorations,
+                postRenderer: (b, pos, decorations) => {
+                    cache.set(pos, b, decorations);
+                },
+                autohighlightCallback: (node, pos, language) => {
+                    autodetectedLanguages.push({
+                        node,
+                        pos,
+                        language,
+                    });
+                },
+            }
+        );
+
+        return { content, autodetectedLanguages };
+    };
+
     return new Plugin<HighlightPluginState>({
         state: {
             init(_, instance) {
                 const cache = new DecorationCache({});
-                const content = getHighlightDecorations(
-                    instance.doc,
-                    hljs,
-                    nodeTypes,
-                    extractor,
-                    {
-                        postRenderer: (b, pos, decorations) => {
-                            cache.set(pos, b, decorations);
-                        },
-                    }
-                );
+                const result = getDecos(instance.doc, cache);
                 return {
                     cache: cache,
-                    decorations: DecorationSet.create(instance.doc, content),
+                    decorations: DecorationSet.create(
+                        instance.doc,
+                        result.content
+                    ),
+                    autodetectedLanguages: result.autodetectedLanguages,
                 };
             },
             apply(tr, data) {
@@ -157,26 +203,16 @@ export function highlightPlugin(
                     return {
                         cache: updatedCache,
                         decorations: data.decorations.map(tr.mapping, tr.doc),
+                        autodetectedLanguages: [],
                     };
                 }
 
-                const content = getHighlightDecorations(
-                    tr.doc,
-                    hljs,
-                    nodeTypes,
-                    extractor,
-                    {
-                        preRenderer: (_, pos) =>
-                            updatedCache.get(pos)?.decorations,
-                        postRenderer: (b, pos, decorations) => {
-                            updatedCache.set(pos, b, decorations);
-                        },
-                    }
-                );
+                const result = getDecos(tr.doc, updatedCache);
 
                 return {
                     cache: updatedCache,
-                    decorations: DecorationSet.create(tr.doc, content),
+                    decorations: DecorationSet.create(tr.doc, result.content),
+                    autodetectedLanguages: result.autodetectedLanguages,
                 };
             },
         },
@@ -184,6 +220,34 @@ export function highlightPlugin(
             decorations(state) {
                 return this.getState(state).decorations;
             },
+        },
+        appendTransaction(_, __, newState) {
+            // TODO appendTransaction not called after plugin init, so it'll autohighlight a minimum of twice...
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error the type of `this` is incorrect in the types
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            const pluginState = this.getState(newState) as HighlightPluginState;
+
+            // if there's no pluginState found or if no block was autodetected, no need to do anything
+            if (!pluginState || !pluginState.autodetectedLanguages.length) {
+                return;
+            }
+
+            let tr = newState.tr;
+
+            // for each autodetected language, place it
+            pluginState.autodetectedLanguages.forEach((l) => {
+                if (l.language) {
+                    const newTr = setter(tr, l.node, l.pos, l.language);
+                    tr = newTr || tr;
+                }
+            });
+
+            // ensure that our behind-the-scenes update doesn't get added to the editor history
+            tr = tr.setMeta("addToHistory", false);
+
+            return tr;
         },
     });
 }
