@@ -70,6 +70,18 @@ interface GetHighlightDecorationsOptions {
         pos: number,
         decorations: Decoration[]
     ) => void;
+
+    /**
+     * A method that is called when a block is autohighlighted with the detected language passed; useful for caching the detected language for future use
+     * @param block The node that was renderer
+     * @param pos The position of the node in the document
+     * @param detectedLanguage The language that was detected during autohighlight
+     */
+    autohighlightCallback?: (
+        block: ProseMirrorNode,
+        pos: number,
+        detectedLanguage: string | undefined
+    ) => void;
 }
 
 /**
@@ -117,6 +129,12 @@ export function getHighlightDecorations(
         const result = language
             ? hljs.highlight(language, b.node.textContent)
             : hljs.highlightAuto(b.node.textContent);
+
+        // if we autohighlighted and have a callback set, call it
+        if (!language && options?.autohighlightCallback) {
+            options.autohighlightCallback(b.node, b.pos, result.language);
+        }
+
         const emitter = result.emitter as TokenTreeEmitter;
 
         const renderer = new ProseMirrorRenderer(
