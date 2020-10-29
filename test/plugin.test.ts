@@ -19,10 +19,15 @@ function getDecorationsFromPlugin(editorState: EditorState) {
     return pluginState.decorations;
 }
 
-function getNodeParamAttr(state: EditorState) {
-    return (state.doc.toJSON() as {
+function getNodeHighlightAttrs(state: EditorState) {
+    const block = (state.doc.toJSON() as {
         content: { type: string; attrs: { [key: string]: unknown } }[];
-    }).content.find((n) => n.type === "code_block")?.attrs?.params;
+    }).content.find((n) => n.type === "code_block");
+
+    return {
+        params: block?.attrs?.params,
+        detectedHighlightLanguage: block?.attrs?.detectedHighlightLanguage,
+    };
 }
 
 describe("DecorationCache", () => {
@@ -316,18 +321,20 @@ describe("highlightPlugin", () => {
         });
 
         const pluginState: DecorationSet = getDecorationsFromPlugin(view.state);
-        let params = getNodeParamAttr(view.state);
+        let attrs = getNodeHighlightAttrs(view.state);
 
         // the decorations should be loaded (indicating the plugin highlighted the content)
         expect(pluginState).not.toBe(DecorationSet.empty);
 
         // the detected language should be set onto the node on first plugin run
-        expect(params).toBe("javascript");
+        expect(attrs.params).toBe("");
+        expect(attrs.detectedHighlightLanguage).toBe("javascript");
 
         // fire off a transaction to make sure that the value stuck
         state = view.state.applyTransaction(state.tr.insertText("a", 1)).state;
         view.updateState(state);
-        params = getNodeParamAttr(view.state);
-        expect(params).toBe("javascript");
+        attrs = getNodeHighlightAttrs(view.state);
+        expect(attrs.params).toBe("");
+        expect(attrs.detectedHighlightLanguage).toBe("javascript");
     });
 });

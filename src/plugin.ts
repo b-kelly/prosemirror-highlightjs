@@ -139,15 +139,17 @@ export function highlightPlugin(
     const extractor =
         languageExtractor ||
         function (node: ProseMirrorNode) {
+            const detectedLanguage = node.attrs
+                .detectedHighlightLanguage as string;
             const params = node.attrs.params as string;
-            return params?.split(" ")[0] || "";
+            return detectedLanguage || params?.split(" ")[0] || "";
         };
 
     const setter =
         languageSetter ||
         function (tr, node, pos, language) {
             const attrs = node.attrs || {};
-            attrs["params"] = language;
+            attrs["detectedHighlightLanguage"] = language;
 
             // set the params attribute of the node to the detected language
             return tr.setNodeMarkup(pos, undefined, attrs);

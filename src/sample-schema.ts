@@ -18,7 +18,10 @@ export const schema = new Schema({
             code: true,
             defining: true,
             marks: "",
-            attrs: { params: { default: "" } },
+            attrs: {
+                params: { default: "" },
+                detectedHighlightLanguage: { default: "" },
+            },
             parseDOM: [
                 {
                     tag: "pre",
