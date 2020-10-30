@@ -18,7 +18,8 @@
     "scripts": {
         "start": "webpack-dev-server --open --config webpack.develop.js",
         "build": "webpack",
-        "test": "jest"
+        "test": "jest",
+        "publish": "npm run build && npm publish"
     },
     "peerDependencies": {
         "highlight.js": "^10.2.1",
