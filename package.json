@@ -16,7 +16,7 @@
         "url": "https://github.com/b-kelly/prosemirror-highlightjs.git"
     },
     "scripts": {
-        "start": "webpack-dev-server --open --config webpack.develop.js",
+        "start": "webpack serve --open --config webpack.develop.js",
         "build": "webpack",
         "test": "jest",
         "publish": "npm run build && npm publish"
@@ -34,9 +34,9 @@
         "@types/prosemirror-view": "^1.16.1",
         "@typescript-eslint/eslint-plugin": "^4.6.0",
         "@typescript-eslint/parser": "^4.6.0",
-        "css-loader": "^4.3.0",
+        "css-loader": "^5.0.1",
         "eslint": "^7.12.1",
-        "eslint-config-prettier": "^6.15.0",
+        "eslint-config-prettier": "^7.1.0",
         "eslint-plugin-jest": "^24.1.0",
         "highlight.js": "10.5.0",
         "html-webpack-plugin": "^4.5.0",
@@ -45,12 +45,12 @@
         "prosemirror-commands": "^1.1.4",
         "prosemirror-keymap": "^1.1.4",
         "prosemirror-view": "^1.16.1",
-        "style-loader": "^1.3.0",
+        "style-loader": "^2.0.0",
         "ts-jest": "^26.4.3",
         "ts-loader": "^8.0.7",
         "typescript": "^4.0.5",
-        "webpack": "^4.44.2",
-        "webpack-cli": "^3.3.12",
+        "webpack": "^5.11.1",
+        "webpack-cli": "^4.3.0",
         "webpack-dev-server": "^3.11.0"
     },
     "types": "./dist/index.d.ts"
