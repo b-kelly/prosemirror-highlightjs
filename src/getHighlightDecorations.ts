@@ -34,6 +34,11 @@ function getNodesOfType(
     nodeTypes: string[]
 ): { node: ProseMirrorNode; pos: number }[] {
     const blocks: { node: ProseMirrorNode; pos: number }[] = [];
+
+    if (nodeTypes.includes("doc")) {
+        blocks.push({ node: doc, pos: -1 });
+    }
+
     doc.descendants((child, pos) => {
         if (child.isBlock && nodeTypes.indexOf(child.type.name) > -1) {
             blocks.push({

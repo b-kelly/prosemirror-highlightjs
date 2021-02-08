@@ -55,6 +55,10 @@ export class DecorationCache {
      * @param decorations The decorations to place in cache
      */
     set(pos: number, node: ProseMirrorNode, decorations: Decoration[]): void {
+        if (pos < 0) {
+            return;
+        }
+
         this.cache[pos] = { node, decorations };
     }
 
@@ -94,6 +98,11 @@ export class DecorationCache {
         const mapping = tr.mapping;
         Object.keys(this.cache).forEach((k) => {
             const pos = +k;
+
+            if (pos < 0) {
+                return;
+            }
+
             const result = mapping.mapResult(pos);
             const mappedNode = tr.doc.nodeAt(result.pos);
             const { node, decorations } = this.get(pos);
