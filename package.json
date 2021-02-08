@@ -19,7 +19,7 @@
         "start": "webpack serve --open --config webpack.develop.js",
         "build": "webpack",
         "test": "jest",
-        "publish": "npm run build && npm publish"
+        "prepublishOnly": "npm run build"
     },
     "peerDependencies": {
         "highlight.js": "^10.5.0",
