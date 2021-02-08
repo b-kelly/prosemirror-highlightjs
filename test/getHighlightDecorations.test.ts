@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { DOMParser, Schema } from "prosemirror-model";
 import type { Decoration } from "prosemirror-view";
 import { getHighlightDecorations } from "../src";
-import { createDoc, hljsInstance, nativeVsPluginTests } from "./helpers";
+import {
+    createDoc,
+    escapeHtml,
+    hljsInstance,
+    nativeVsPluginTests,
+} from "./helpers";
 
 describe("getHighlightDecorations", () => {
     it("should do basic highlighting", () => {
@@ -165,6 +171,32 @@ describe("getHighlightDecorations", () => {
         });
 
         expect(detectedLanguage).toBe("javascript");
+    });
+
+    it("should support highlighting the doc node itself", () => {
+        const schema = new Schema({
+            nodes: {
+                text: {
+                    group: "inline",
+                },
+                doc: {
+                    content: "text*",
+                },
+            },
+        });
+        const element = document.createElement("div");
+        element.innerHTML = escapeHtml(`console.log("hello world!");`);
+
+        const doc = DOMParser.fromSchema(schema).parse(element);
+        const decorations = getHighlightDecorations(
+            doc,
+            hljsInstance,
+            ["doc"],
+            () => "javascript"
+        );
+
+        expect(decorations).toBeTruthy();
+        expect(Object.keys(decorations)).toHaveLength(2);
     });
 
     it.each(nativeVsPluginTests)(

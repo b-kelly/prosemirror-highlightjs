@@ -24,7 +24,7 @@ hljs.registerAliases("js_alias", {
 
 export const hljsInstance = hljs;
 
-function escapeHtml(html: string) {
+export function escapeHtml(html: string) {
     return html
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
