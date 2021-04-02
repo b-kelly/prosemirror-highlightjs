@@ -227,7 +227,7 @@ describe("getHighlightDecorations", () => {
                 .map((d) => d.type.attrs.class as string);
 
             // run the code through highlightjs and get all the "decorations" from it
-            const hljsOutput = hljsInstance.highlight(language, codeString)
+            const hljsOutput = hljsInstance.highlight(codeString, { language })
                 .value;
             const container = document.createElement("pre");
             container.innerHTML = hljsOutput;

@@ -76,4 +76,4 @@ window.view = new EditorView(document.querySelector("#editor"), {
 // highlight our "static" version to compare
 let clone = document.querySelector("#content-clone");
 clone.innerHTML = content.querySelector("pre").outerHTML;
-hljs.highlightBlock(clone.querySelector("pre code"));
+hljs.highlightElement(clone.querySelector("pre code"));

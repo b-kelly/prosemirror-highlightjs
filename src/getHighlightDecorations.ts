@@ -132,7 +132,7 @@ export function getHighlightDecorations(
         }
 
         const result = language
-            ? hljs.highlight(language, b.node.textContent)
+            ? hljs.highlight(b.node.textContent, { language })
             : hljs.highlightAuto(b.node.textContent);
 
         // if we autohighlighted and have a callback set, call it
