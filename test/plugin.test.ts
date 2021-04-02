@@ -261,7 +261,7 @@ describe("highlightPlugin", () => {
         expect(initialPositions).toHaveLength(blockContents.length - 1);
 
         // add a transaction that alters the doc
-        const addedText = "testing";
+        const addedText = "asdf "; // NOTE: use nonsense text so the highlighter doesn't pick it up
         const tr = state.tr.insertText(addedText, initialPositions[1] + 1);
         state = state.apply(tr);
 
