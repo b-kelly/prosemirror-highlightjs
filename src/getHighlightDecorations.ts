@@ -207,7 +207,11 @@ class ProseMirrorRenderer implements Renderer {
 
     openNode(node: DataNode) {
         let className = node.kind || "";
-        if (!node.sublanguage) className = `${this.classPrefix}${className}`;
+        if (node.sublanguage) {
+            className = `language-${className}`;
+        } else {
+            className = this.expandScopeName(className);
+        }
 
         const item = this.newNode();
         item.kind = node.kind;
@@ -247,5 +251,17 @@ class ProseMirrorRenderer implements Renderer {
             kind: undefined,
             classes: "",
         };
+    }
+
+    // TODO logic taken from upstream
+    private expandScopeName(name: string): string {
+        if (name.includes(".")) {
+            const pieces = name.split(".");
+            return [
+                `${this.classPrefix}${pieces.shift()}`,
+                ...pieces.map((x, i) => `${x}${"_".repeat(i + 1)}`),
+            ].join(" ");
+        }
+        return `${this.classPrefix}${name}`;
     }
 }
