@@ -1,5 +1,5 @@
 import hljs from "highlight.js/lib/core";
-import "highlight.js/styles/solarized-dark.css";
+import "highlight.js/styles/stackoverflow-dark.css";
 import { baseKeymap } from "prosemirror-commands";
 import { keymap } from "prosemirror-keymap";
 import { DOMParser, Schema } from "prosemirror-model";
