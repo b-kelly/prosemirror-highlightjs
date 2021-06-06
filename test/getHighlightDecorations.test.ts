@@ -196,7 +196,7 @@ describe("getHighlightDecorations", () => {
         );
 
         expect(decorations).toBeTruthy();
-        expect(Object.keys(decorations)).toHaveLength(2);
+        expect(Object.keys(decorations)).toHaveLength(3);
     });
 
     it.each(nativeVsPluginTests)(
@@ -227,8 +227,9 @@ describe("getHighlightDecorations", () => {
                 .map((d) => d.type.attrs.class as string);
 
             // run the code through highlightjs and get all the "decorations" from it
-            const hljsOutput = hljsInstance.highlight(codeString, { language })
-                .value;
+            const hljsOutput = hljsInstance.highlight(codeString, {
+                language,
+            }).value;
             const container = document.createElement("pre");
             container.innerHTML = hljsOutput;
             const hljsDecorations = Array.from(
