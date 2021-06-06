@@ -1,4 +1,4 @@
-/// <reference types="highlight.js" />
+import type { Emitter, HLJSApi, HLJSOptions } from "highlight.js";
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { Decoration } from "prosemirror-view";
 
@@ -140,7 +140,7 @@ export function getHighlightDecorations(
             options.autohighlightCallback(b.node, b.pos, result.language);
         }
 
-        const emitter = result.emitter as TokenTreeEmitter;
+        const emitter = result._emitter as TokenTreeEmitter;
 
         const renderer = new ProseMirrorRenderer(
             emitter,

@@ -1,4 +1,4 @@
-/// <reference types="highlight.js" />
+import type { HLJSApi } from "highlight.js";
 import { Node as ProseMirrorNode } from "prosemirror-model";
 import { Plugin, PluginKey, Transaction } from "prosemirror-state";
 import type { Mapping } from "prosemirror-transform";
