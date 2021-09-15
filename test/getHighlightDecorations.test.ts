@@ -173,6 +173,27 @@ describe("getHighlightDecorations", () => {
         expect(detectedLanguage).toBe("javascript");
     });
 
+    it.each([undefined, "javascript"])(
+        "should call not autohighlightCallback (%s)",
+        (language) => {
+            const doc = createDoc([{ code: "", language }]);
+
+            getHighlightDecorations(
+                doc,
+                hljsInstance,
+                ["code_block"],
+                () => null,
+                {
+                    autohighlightCallback: (_, __, ___) => {
+                        throw "This should not have been called!";
+                    },
+                }
+            );
+
+            expect(true).toBeTruthy();
+        }
+    );
+
     it("should support highlighting the doc node itself", () => {
         const schema = new Schema({
             nodes: {

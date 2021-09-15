@@ -136,7 +136,7 @@ export function getHighlightDecorations(
             : hljs.highlightAuto(b.node.textContent);
 
         // if we autohighlighted and have a callback set, call it
-        if (!language && options?.autohighlightCallback) {
+        if (!language && result.language && options?.autohighlightCallback) {
             options.autohighlightCallback(b.node, b.pos, result.language);
         }
 
