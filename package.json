@@ -38,7 +38,7 @@
         "eslint": "^8.11.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-jest": "^26.1.2",
-        "highlight.js": "11.5.0",
+        "highlight.js": "11.5.1",
         "html-webpack-plugin": "^5.5.0",
         "jest": "^27.5.1",
         "prettier": "^2.6.0",
