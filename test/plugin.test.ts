@@ -316,7 +316,7 @@ describe("highlightPlugin", () => {
         let state = createState(`console.log("hello world");`);
 
         // the autodetected language stuff is only set when in a view (unfortunately...)
-        const view = new EditorView(undefined, {
+        const view = new EditorView(document.createElement("div"), {
             state,
         });
 
