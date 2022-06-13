@@ -1,4 +1,4 @@
-import { Schema } from "prosemirror-model";
+import { Schema, Node } from "prosemirror-model";
 
 /**
  * Sample schema to show how a code_block node would look like for use with the default plugin settings;
@@ -26,13 +26,13 @@ export const schema = new Schema({
                 {
                     tag: "pre",
                     preserveWhitespace: "full",
-                    getAttrs: (node) => ({
+                    getAttrs: (node: HTMLElement) => ({
                         params:
                             (<Element>node)?.getAttribute("data-params") || "",
                     }),
                 },
             ],
-            toDOM(node) {
+            toDOM(node: Node) {
                 return [
                     "pre",
                     { "data-params": node.attrs.params as string },

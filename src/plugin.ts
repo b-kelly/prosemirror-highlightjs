@@ -8,12 +8,12 @@ import { getHighlightDecorations } from "./getHighlightDecorations";
 // TODO `map` is not actually part of the exposed api for Decoration,
 // so we have to add our own type definitions to expose it
 declare module "prosemirror-view" {
-    interface Decoration<T> {
+    interface Decoration {
         map: (
             mapping: Mapping,
             offset: number,
             oldOffset: number
-        ) => Decoration<T>;
+        ) => Decoration;
     }
 }
 
@@ -158,6 +158,9 @@ export function highlightPlugin(
         languageSetter ||
         function (tr, node, pos, language) {
             const attrs = node.attrs || {};
+
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
             attrs["detectedHighlightLanguage"] = language;
 
             // set the params attribute of the node to the detected language
@@ -232,8 +235,8 @@ export function highlightPlugin(
             },
         },
         props: {
-            decorations(state) {
-                return this.getState(state).decorations;
+            decorations(this: Plugin<HighlightPluginState>, state) {
+                return this.getState(state)?.decorations;
             },
         },
         view(initialView: EditorView) {

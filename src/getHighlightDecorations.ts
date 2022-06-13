@@ -257,8 +257,9 @@ class ProseMirrorRenderer implements Renderer {
     private expandScopeName(name: string): string {
         if (name.includes(".")) {
             const pieces = name.split(".");
+            const prefix = pieces.shift() || "";
             return [
-                `${this.classPrefix}${pieces.shift()}`,
+                `${this.classPrefix}${prefix}`,
                 ...pieces.map((x, i) => `${x}${"_".repeat(i + 1)}`),
             ].join(" ");
         }
