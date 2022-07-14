@@ -10,10 +10,9 @@ import { highlightPlugin } from "../src/index";
 import { schema } from "../src/sample-schema";
 import "./demo.css";
 
-hljs.registerLanguage(
-    "javascript",
-    require("highlight.js/lib/languages/javascript")
-);
+import js from "highlight.js/lib/languages/javascript";
+
+hljs.registerLanguage("javascript", js);
 
 var extendedSchema = new Schema({
     nodes: {

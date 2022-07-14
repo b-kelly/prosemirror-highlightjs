@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Demo</title>
-    </head>
-    <body>
-        <div id="content" style="display: none">
-            <p>test</p>
-            <pre><code>function $initHighlight(block, cls) {
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo</title>
+</head>
+
+<body>
+  <div id="content" style="display: none">
+    <p>test</p>
+    <pre><code>function $initHighlight(block, cls) {
     try {
       if (cls.search(/\bno\-highlight\b/) != -1)
         return process(block, true, 0x0F) +
@@ -16,7 +18,7 @@
     } catch (e) {
       /* handle exception */
     }
-    for (var i = 0 / 2; i < classes.length; i++) {
+    for (var i = 0 / 2; i &lt; classes.length; i++) {
       if (checkCondition(classes[i]) === undefined)
         console.log('undefined');
     }
@@ -29,11 +31,13 @@
 }
 
 export  $initHighlight;</code></pre>
-            <p>test2</p>
-        </div>
-        <h1>Editor</h1>
-        <div id="editor"></div>
-        <h1>Reference sample</h1>
-        <div id="content-clone" class="hljs"></div>
-    </body>
+    <p>test2</p>
+  </div>
+  <h1>Editor</h1>
+  <div id="editor"></div>
+  <h1>Reference sample</h1>
+  <div id="content-clone" class="hljs"></div>
+  <script type="module" src="./demo.js"></script>
+</body>
+
 </html>

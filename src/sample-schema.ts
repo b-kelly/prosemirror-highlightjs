@@ -26,7 +26,7 @@ export const schema = new Schema({
                 {
                     tag: "pre",
                     preserveWhitespace: "full",
-                    getAttrs: (node: HTMLElement) => ({
+                    getAttrs: (node: HTMLElement | string) => ({
                         params:
                             (<Element>node)?.getAttribute("data-params") || "",
                     }),

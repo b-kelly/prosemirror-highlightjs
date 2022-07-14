@@ -1,16 +1,22 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
-        "module": "es6",
-        "target": "es5",
+        "module": "ESNext",
+        "target": "ESNext",
         "allowJs": false,
         "esModuleInterop": true,
-        "moduleResolution": "node",
+        "moduleResolution": "Node",
         "declaration": true,
         "strict": true,
         "noImplicitReturns": true,
         "noUnusedLocals": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "lib": ["ESNext", "DOM"],
+        "useDefineForClassFields": true,
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "noEmit": true,
+        "noUnusedParameters": true,
+        "skipLibCheck": true
     },
-    "include": ["./src/**/*"]
+    "include": ["src"]
 }
