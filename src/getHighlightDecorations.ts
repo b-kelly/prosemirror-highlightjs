@@ -8,7 +8,7 @@ interface TokenTreeEmitter extends Emitter {
     walk: (r: Renderer) => void;
 }
 
-type DataNode = { kind?: string; sublanguage?: boolean };
+type DataNode = { scope?: string; sublanguage?: boolean };
 
 interface Renderer {
     addText: (text: string) => void;
@@ -20,7 +20,7 @@ interface Renderer {
 type RendererNode = {
     from: number;
     to: number;
-    kind?: string;
+    scope?: string;
     classes: string;
 };
 
@@ -152,7 +152,7 @@ export function getHighlightDecorations(
 
         const localDecorations: Decoration[] = [];
         value.forEach((v) => {
-            if (!v.kind) {
+            if (!v.scope) {
                 return;
             }
 
@@ -206,7 +206,7 @@ class ProseMirrorRenderer implements Renderer {
     }
 
     openNode(node: DataNode) {
-        let className = node.kind || "";
+        let className = node.scope || "";
         if (node.sublanguage) {
             className = `language-${className}`;
         } else {
@@ -214,7 +214,7 @@ class ProseMirrorRenderer implements Renderer {
         }
 
         const item = this.newNode();
-        item.kind = node.kind;
+        item.scope = node.scope;
         item.classes = className;
         item.from = this.currentPosition;
 
@@ -233,7 +233,7 @@ class ProseMirrorRenderer implements Renderer {
         item.to = this.currentPosition;
 
         // will this ever happen in practice?
-        if (node.kind !== item.kind) {
+        if (node.scope !== item.scope) {
             throw "Mismatch!";
         }
 
@@ -248,7 +248,7 @@ class ProseMirrorRenderer implements Renderer {
         return {
             from: 0,
             to: 0,
-            kind: undefined,
+            scope: undefined,
             classes: "",
         };
     }

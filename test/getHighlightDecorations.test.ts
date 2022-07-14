@@ -255,7 +255,9 @@ describe("getHighlightDecorations", () => {
             container.innerHTML = hljsOutput;
             const hljsDecorations = Array.from(
                 container.querySelectorAll("span")
-            ).map((d) => d.className);
+            )
+                .map((d) => d.className)
+                .filter((c) => c.startsWith("hljs-"));
 
             //expect(decorations.length).toBe(hljsDecorations.length);
             expect(decorations).toStrictEqual(hljsDecorations);
